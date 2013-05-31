@@ -1,0 +1,10 @@
+<include target="___setting.html" />
+
+<div class="bd">
+<!--@if($act=='dispBoardWriteComment'||$lsttp=='blog'||$lsttp=='guest')-->
+	<include cond="$act!='dispBoardWriteComment'&&($lsttp=='blog'||$lsttp=='guest')" target="_tpl.insert.html" />
+	<include cond="$act=='dispBoardWriteComment'" target="_tpl.c.insert.html" />
+<!--@else-->
+<div>{$lang->is_not_available}</div>
+<!--@endif-->
+</div>

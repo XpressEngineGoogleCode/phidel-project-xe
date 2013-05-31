@@ -1,0 +1,21 @@
+<include cond="$is_modal" target="___setting.html" />
+<include cond="!$is_modal" target="__header.html" />
+
+<div id="siBody">
+	<div class="scContent clearBar">
+		<form action="./" method="post">
+		<input cond="$is_modal" type="hidden" name="is_modal" value="1" />
+		<input type="hidden" name="module_srl" value="{$mi->module_srl}" />
+		{@
+			$oTemplate = &TemplateHandler::getInstance();
+			print $oTemplate->compile($tpl_path, '_tpl.'.($act=='dispBoardDeleteComment'?'c.delete':'delete').'.html');
+		}
+		</form>
+	</div>
+</div>
+
+<div cond="$is_modal&&$XE_VALIDATOR_MESSAGE" class="modalmessage {$XE_VALIDATOR_MESSAGE_TYPE}" style="display:none">
+	<p>{nl2br($XE_VALIDATOR_MESSAGE)}</p>
+</div>
+
+<include cond="!$is_modal" target="__footer.html" />

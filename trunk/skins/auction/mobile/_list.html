@@ -1,0 +1,155 @@
+<div class="hx h2">
+	<h2><a href="{$oEntry->getUrl('','vid',$vid,'mid',$mid)}">{$mi->browser_title}</a> <em>[{number_format($total_count)}]</em></h2>
+	<a cond="$is_cts" href="{$oEntry->getUrl('page','','act','dispBeluxeMobileCategory','')}" class="ca">
+		{$cts[(int)$category_srl]->title}
+	</a>
+	<a cond="$grant->write_document" href="{$oEntry->getUrl('act','dispBoardWrite','document_srl','')}" class="write">{$lang->cmd_write}</a>
+</div>
+<div cond="$mi->title||$mi->sub_title||$mi->board_desc" class="hx pn">
+	<block cond="$mi->title||$mi->sub_title">{$mi->title} | {$mi->sub_title}</block>
+	<div cond="$mi->board_desc" class="dc">{$mi->board_desc}</div>
+</div>
+
+{@
+	$ds_nick = $ci['nick_name']->display == 'Y';
+	$ds_user =	$ci['user_name']->display == 'Y';
+	$ds_regdate = $ci['regdate']->display == 'Y';
+	$ds_update = $ci['last_update']->display == 'Y';
+
+	$notice_list = $oThis->getNoticeList();
+	$best_list = $mi->use_best=='Y'?$oThis->getBestList():array();
+	$a_lsttp = array('notice'=>&$notice_list,'best'=>&$best_list);
+}
+
+<ul loop="$a_lsttp => $tlk,$p_list" cond="count($p_list)" class="lt">
+	<li loop="$p_list => $no,$document">
+	{@
+		$is_blind = ($tlk!='notice'&&$mi->use_blind=='Y')?$oThis->isBlind($document->document_srl):0;
+		$un_extra = ($is_rtrpt||$ao_ppang||$ds_mtlng)?$document->get('extra_vars'):null;
+		$un_extra = is_string($un_extra)?unserialize($un_extra):$un_extra;
+	}
+		<a href="{$oEntry->getUrl('','mid',$mid,'document_srl',$document->document_srl,'sort_index',$sort_index,'order_type',$order_type,'search_target',$search_target,'search_keyword',$search_keyword,'page',$spage)}">
+			<span class="title"><span cond="$tlk" class="{$tlk}">{$tlk=='best'?'Best':$lang->notice}</span>
+				<span cond="!$tlk&&$is_cts && $document->get('category_srl')">[{$cts[$document->get('category_srl')]->title}]</span>
+				<strong>{$is_blind?$lang->msg_is_blind:$document->getTitle($mi->title_length)}</strong>
+				{@
+					$t_cmtn = $document->getCommentCount();
+					$t_tbkn = $document->getTrackbackCount();
+				}
+				<em cond="$t_cmtn">+{$t_cmtn}</em><em cond="$t_tbkn">.{$t_tbkn}</em>
+				{$document->printExtraImages(60*60*$mi->duration_new)}<img class="scIcoSet world" src="../img/common/blank.gif" alt="multilingual" title="multilingual" cond="$ds_mtlng&&count($un_extra->beluxe->langs)" />
+			</span>
+			<span class="auth">
+				<span cond="!$tlk&&$is_rtrpt" class="usept">{$un_extra->beluxe?abs((int)$un_extra->beluxe->use_point):'0'}</span>
+				<span>{$tlk&&$tlk=='notice'?$lang->notice:$cstus[(int)$document->get('is_notice')]}:</span>
+				<span cond="$ds_nick||$ds_user" class="fsi"|cond="!$document->get('member_srl')">{cut_str((!$document->get('member_srl')||$ds_nick)?$document->getNickName():$document->getUserName(), $mi->nickname_length)}</span>
+				<span class="time">{!$ds_regdate&&$ds_update ? zdate($document->get('last_update')) : $document->getRegDate("Y.m.d")}</span>
+			</span>
+		</a>
+	</li>
+</ul>
+
+<ul class="lt gall">
+	<li loop="$document_list => $no,$document" class="doc">
+	{@
+		$is_grant = $grant->view && (!$document->isSecret() || $document->isGranted());
+		$is_blind = $mi->use_blind=='Y'?$oThis->isBlind($document->document_srl):0;
+
+		$un_extra = $document->get('extra_vars');
+		$un_extra = is_string($un_extra)?unserialize($un_extra):$un_extra;
+
+		$start_point = (int)$un_extra->beluxe->extra->start_point;
+		$end_point = (int)$un_extra->beluxe->extra->end_point;
+		$start_point>$end_point ? $start_point = 0 : 0;
+		$end_time = ztime($document->get('regdate'))+($un_extra->beluxe->extra->end_time*60*60);
+		$doc_status = (int) $document->get('is_notice');
+	}
+
+	<!--@if(!$doc_status && (time() > $end_time))-->
+		{@
+			$out = $oThis->setCustomStatus($document->document_srl, ((int) $document->getCommentCount()>0?1:3));
+			$doc_status = $out->toBool();
+			$doc_status?$oThis->setCustomActions($document->document_srl, array('complete_time',time())):0;
+			$voted_list = $doc_status?$oThis->getDocumentVotedLogs($document->document_srl):array();
+		}
+		<!--@if($doc_status&&count($voted_list))-->
+		{@
+			reset($voted_list);
+			$cur_voted = current($voted_list);
+			$mbr_srl = $cur_voted->member_srl;
+			$is_voted = abs($cur_voted->point)*-1;
+			$mbr_srl?$oThis->setVotePoint($document->document_srl, $mbr_srl, $is_voted):0;
+			$mbr_srl?$oThis->sendMessageToMember($document->get('member_srl'),$mbr_srl,$lang->msg_auctioned_off,sprintf($lang->msg_auction_send_phone, $un_extra->beluxe->extra->phone_number, $document->getPermanentUrl())):0;
+		}
+		<!--@endif-->
+	<!--@endif-->
+
+		<a href="{$oEntry->getUrl('','mid',$mid,'document_srl',$document->document_srl,'sort_index',$sort_index,'order_type',$order_type,'search_target',$search_target,'search_keyword',$search_keyword,'page',$spage)}">
+			<span class="fl thum">
+				<!--@if($is_blind || !$is_grant)-->
+					<img src="../img/common/thum_{$is_blind?'blind':'secret'}.png" alt="{$is_blind?'blind':'secret'}" title="{$is_blind?'blind':'secret'}" height="{$mi->thumbnail_height}" width="{$mi->thumbnail_width}" />
+				<!--@else-->
+					<!--@if($document->thumbnailExists($mi->thumbnail_width, $mi->thumbnail_height, $mi->thumbnail_type))-->
+						<img src="{$document->getThumbnail($mi->thumbnail_width, $mi->thumbnail_height, $mi->thumbnail_type)}" border="0" alt="" />
+					<!--@else-->
+						<img src="../img/common/thum_no.png" alt="no image" title="no image" height="{$mi->thumbnail_height}" width="{$mi->thumbnail_width}" />
+					<!--@endif-->
+				<!--@endif-->
+			</span>
+			<ul class="ifo" style="margin-left:{(int)$mi->thumbnail_width+13}px;">
+				<li>
+					<span class="title">
+						<span cond="$is_cts && $document->get('category_srl')">[{$cts[$document->get('category_srl')]->title}]</span>
+						<strong>{$is_blind?$lang->msg_is_blind:$document->getTitle($mi->title_length)}</strong>
+						{@
+							$t_cmtn = $document->getCommentCount();
+							$t_tbkn = $document->getTrackbackCount();
+						}
+						<em cond="$t_cmtn">+{$t_cmtn}</em><em cond="$t_tbkn">.{$t_tbkn}</em>
+						{$document->printExtraImages(60*60*$mi->duration_new)}<img class="scIcoSet world" src="../img/common/blank.gif" alt="multilingual" title="multilingual" cond="$ds_mtlng&&count($un_extra->beluxe->langs)" />
+					</span>
+				</li>
+				<li><span class="auth">{$lang->start_point}: {$start_point}</span></li>
+				<li><span class="auth">{$lang->end_point}: {$end_point}</span></li>
+				<li>
+					{@ $remaining_time = $doc_status?-1:round(($end_time - time()) / 60)}
+					<span cond="$remaining_time>0" class="auth">{sprintf($lang->remaining_time,$remaining_time)}</span>
+					<span cond="$remaining_time<1" class="auth">{$lang->end_bid}</span>
+				</li>
+				<li>
+					<span class="auth">
+						<span cond="!$tlk&&$is_rtrpt" class="usept">{$un_extra->beluxe?abs((int)$un_extra->beluxe->use_point):'0'}</span>
+						<span class="{$cols[$doc_status]}">({$lang->auction_status[(int)$doc_status]})</span>
+						<span cond="$ds_nick||$ds_user" class="fsi"|cond="!$document->get('member_srl')">{cut_str((!$document->get('member_srl')||$ds_nick)?$document->getNickName():$document->getUserName(), $mi->nickname_length)}</span>
+					</span>
+				</li>
+				<li><span class="time">{!$ds_regdate&&$ds_update ? zdate($document->get('last_update')) : $document->getRegDate("Y.m.d H:i")}</span></li>
+			</ul>
+			<ul class="ifo">
+				<li><span class="summary">{$is_blind?$lang->msg_is_blind:$document->getSummary(150)}</span></li>
+			</ul>
+		</a>
+	</li>
+</ul>
+
+<div cond="$page_navigation" class="pn">
+	<a cond="$page != 1" href="{$oEntry->getUrl('document_srl','','comment_srl','','page',$page-1,'division',$division,'last_division',$last_division)}" accesskey="b" class="prev">{$lang->cmd_prev}</a>
+	<strong>{$page} / {$page_navigation->last_page}</strong>
+	<a cond="$page != $page_navigation->last_page" href="{$oEntry->getUrl('document_srl','','comment_srl','','page',$page+1,'division',$division,'last_division',$last_division)}" accesskey="n" class="next">{$lang->cmd_next}</a>
+	<a href="#beluxe" class="lic fr">Board DX</a>
+</div>
+
+<div class="sh">
+	<form action="{$oEntry->getUrl()}" method="get">
+		<input type="hidden" name="vid" value="{$vid}" />
+		<input type="hidden" name="mid" value="{$mid}" />
+		<input type="hidden" name="category" value="{$category}" />
+		<span class="tgbn"><a href="{$oEntry->getUrl('act','dispBoardTagList')}" title="{$lang->tag}">&nbsp;</a></span>
+		<select name="search_target">
+			<option loop="$ci=>$key,$val" cond="$val->search=='Y'" value="{$key}" selected="selected"|cond="$key==$search_target">{$val->name}</option>
+			<option cond="$search_target&&$ci[$search_target]->search!='Y'" value="{$search_target}" selected="selected">{Context::getLang($search_target)}</option>
+		</select>
+		<input type="text" name="search_keyword" value="{htmlspecialchars($search_keyword)}" title="{$lang->cmd_search}" />
+		<button type="submit" class="shbn" title="{$lang->cmd_search}">Search</button>
+	</form>
+</div>

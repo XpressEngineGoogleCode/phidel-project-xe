@@ -1,0 +1,117 @@
+{@
+	$ds_nick = $ci['nick_name']->display == 'Y';
+	$ds_user =	$ci['user_name']->display == 'Y';
+
+	$ocmt = $is_owner&&$auction_status ? $oThis->getCommentList($oDocument->document_srl, $cpage, $cmt_lstcnt) : $oThis->getCommentByMemberSrl($oDocument->document_srl);
+	$cmts = isset($ocmt->data) ? $ocmt->data : $ocmt;
+	$comment = count($cmts) ? current($cmts) : null;
+	$is_recover = $auction_status || round(($end_time - time()) / 60) < 1 || $is_voted;
+	$is_recover&&!$auction_status&&$comment&&($comment->get('member_srl')!=$logged_info->member_srl) ? $is_recover = false : 0;
+}
+<form ruleset="insertComment"|cond="!$auction_status" action="./" method="post" class="inComfrm"|cond="!$is_recover">
+	<input type="hidden" name="module_srl" value="{$mi->module_srl}" />
+	<input type="hidden" name="document_srl" value="{$document_srl}" />
+	<input type="hidden" name="nick_name" value="1" />
+	<input type="hidden" name="password" value="1" />
+	<input type="hidden" name="content" value="1" />
+	<input cond="$comment->comment_srl" type="hidden" name="comment_srl" value="{$comment->comment_srl}" />
+	<input cond="$is_logged" type="hidden" name="notify_message" value="Y" />
+	<input cond="$is_recover" type="hidden" name="act" value="procBeluxeRecoverPoint" />
+	<input cond="!$is_recover&&!$auction_status" type="hidden" name="act" value="procBoardInsertComment" />
+
+	<div id="siFbk" class="cmt clearBar"><a name="comment" data-scroll="true"|cond="$comment_srl"></a>
+		<div class="scFbH">
+			<h2>
+				{$lang->bidder} <em>{$oDocument->getCommentcount()}</em>
+				<span cond="$is_logged" class="fr">
+				<!--@if($is_recover)-->
+					<!--@if($auction_status==4)-->
+						<span cond="!$is_voted || $is_voted<0">{$lang->msg_auction_canceled}</span>
+						<span cond="!$is_owner && $is_voted>0" class="scBtn blue small"><button type="submit">{$lang->cmd_recover_point} ({(int) $is_voted} - {$recover_pay_point})</button></span>
+					<!--@elseif($is_owner)-->
+						<span cond="$auction_status!=2&&$auction_status!=3" class="scBtn blue small" title="{$lang->verification_waiting_time}"><a href="#" onclick="return false">{date('Y-m-d H:i:s', $complete_time)}</a></span>
+						<span cond="$auction_status==2" class="scBtn blue small"><a href="{getUrl('auction_action','2')}" class="colGreen">{$lang->cmd_get_point} ({abs($cur_voted->point)})</a></span>
+						<span cond="$auction_status==3">{$lang->end_bid}</span>
+					<!--@else-->
+						<span cond="$auction_status!==1&&(!$is_voted||$is_voted<0)">{$lang->end_bid}</span>
+						<span cond="$auction_status===1&&$is_voted<0" class="scBtn blue small"><a href="{getUrl('auction_action','1')}" class="colGreen">{$lang->cmd_transactions_verification}</a></span>
+						<span cond="$is_voted>0" class="scBtn blue small"><button type="submit">{$lang->cmd_recover_point} ({(int) $is_voted} - {$recover_pay_point})</button></span>
+					<!--@endif-->
+				<!--@elseif(!$is_owner)-->
+					<span class="scBtn blue small"><input type="text" name="vote_point" data-min="{$start_point}" data-max="{$end_point}" /></span><span class="scBtn blue small"><button type="submit">{$lang->comment_write}</button></span>
+				<!--@else-->
+					Wait...
+				<!--@endif-->
+				</span>
+				<span cond="!$is_logged" class="fr">
+					<span class="scBtn blue small"><a href="{$oEntry->getUrl('act','dispMemberLoginForm','auction_action','')}">{$lang->cmd_login}</a></span>
+				</span>
+			</h2>
+		</div>
+
+		<ul cond="!count($cmts)" class="scFrm scTlst">
+			<li>
+				<div class="scFbt"></div>
+				<div class="scCmtCon clearBar">
+					<!--@if(!$is_recover&&!$is_owner)-->
+					<div>{sprintf($lang->about_comment_write, $recover_pay_point)}</div>
+					<!--@elseif($is_recover&&$is_owner&&$auction_status===1)-->
+					<div>{$lang->verification_waiting_time}</div>
+					<!--@endif-->
+					<div class="scMyp">{sprintf($lang->my_point,$my_point)}</div>
+				</div>
+			</li>
+		</ul>
+
+		<ul cond="count($cmts)" class="scFrm scTlst">
+			<li loop="$cmts=>$key,$comment" cond="$grant->manager||($is_logged&&($comment->member_srl==$logged_info->member_srl)||$voted_list[$comment->member_srl]->point<0)"><a name="comment_{$comment->comment_srl}"></a>
+				<div class="scFbt">
+					<h3 class="author">
+						{@
+							$mbsl = $comment->get('member_srl');
+							$home = $comment->get('homepage');
+							$nick = cut_str((!$mbsl||$ds_nick||!$ds_user)?$comment->getNickName():$comment->getUserName(), $mi->nickname_length);
+						}
+						<i cond="!$mbsl && !$home">{$nick}</i>
+						<span cond="$mbsl" class="scHLink member_{$mbsl}">{$nick}</span>
+						<i cond="!$mbsl && $home" class="scHLink" data-href="{$home}">{$nick}</i>
+					</h3>
+					<span class="time">{zdate($comment->last_update, "Y.m.d H:i:s")}</span>
+				</div>
+				<div class="scCmtCon clearBar">
+					<!--@if($is_recover&&!$is_owner&&$auction_status===1&&$is_voted<0)-->
+					{sprintf($lang->owner_info,$oDocument->get('nick_name'),$un_extra->beluxe->extra->phone_number,$oDocument->get('email_address'))}
+					<div><a href="{getUrl('','module','communication','act','dispCommunicationSendMessage','receiver_srl',$oDocument->get('member_srl'))}" onclick="popopen(this.href,'popup'); return false;">{$lang->cmd_send_message}</a></div>
+					<!--@elseif($is_recover&&!$is_owner&&!$auction_status&&$is_voted>0)-->
+					<div>{sprintf($lang->about_cmd_recover_point, $recover_pay_point)}</div>
+					<!--@elseif($is_recover&&!$is_owner&&$auction_status&&$is_voted>0)-->
+					<div>{sprintf($lang->about_end_recover_point, $recover_pay_point)}</div>
+					<!--@elseif(!$is_recover&&!$is_owner)-->
+					<div>{sprintf($lang->about_comment_write, $recover_pay_point)}</div>
+					<!--@endif-->
+
+					{@
+						$vptn = $voted_list[$comment->member_srl]->point;
+						$mptn = $is_logged&&($comment->member_srl==$logged_info->member_srl) ? ' / '.$my_point : '';
+					}
+					<!--@if($voted_list[$comment->member_srl]->point<0)-->
+					<div class="scMyp">{$lang->msg_auctioned_off} * {('<b>' . abs((int)$vptn)).'</b>'.$mptn} point</div>
+					<!--@else-->
+					<div class="scMyp">{sprintf($lang->my_point, ('<b>' . abs((int)$vptn)).'</b>'.$mptn)}</div>
+					<!--@endif-->
+				</div>
+			</li>
+		</ul>
+
+		<div cond="$ocmt->total_page > 1" class="scPageArea">
+			<span cond="$ocmt->total_page > 1" class="scPage">
+				<a href="{$oEntry->getUrl('comment_srl','','cpage','1')}#comment" class="direction prev"><span></span><span></span> {$lang->first_page}</a>
+				<block loop="$page_no=$ocmt->page_navigation->getNextPage()">
+					<strong cond="$cpage==$page_no">{$page_no}</strong>
+					<a cond="$cpage!=$page_no" href="{$oEntry->getUrl('comment_srl','','cpage',$page_no)}#comment">{$page_no}</a>
+				</block>
+				<a href="{$oEntry->getUrl('comment_srl','','cpage',$ocmt->page_navigation->last_page)}#comment" class="direction next">{$lang->last_page} <span></span><span></span></a>
+			</span>
+		</div>
+	</div>
+</form>

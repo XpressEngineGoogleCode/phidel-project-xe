@@ -1,0 +1,6 @@
+<include target="___setting.html" />
+
+<div class="bd" id="read"|cond="$is_doc">
+	<include cond="$is_doc" target="_read.html" />
+	<include cond="!$is_doc" target="_list.html" />
+</div>

@@ -1,0 +1,313 @@
+<!-- DOCUMENT -->
+{@
+	$doc_srl = $oDocument->document_srl;
+
+	$ds_status = $ci['custom_status']->display == 'Y';
+	$ds_readed = $ci['readed_count']->display == 'Y';
+	$ds_voted = $ci['voted_count']->display == 'Y';
+	$ds_blamed = $ci['blamed_count']->display == 'Y';
+	$ds_update = $ci['last_update']->display == 'Y';
+
+	$ds_nick = $ci['nick_name']->display == 'Y';
+	$ds_user =	$ci['user_name']->display == 'Y';
+
+	$is_granted = $grant->view && $oDocument->isGranted();
+	$is_secret = $oDocument->isSecret();
+	$is_locked = $is_cklok?$oThis->isLocked($doc_srl):0;
+	$is_blind = $mi->use_blind=='Y'?$oThis->isBlind($doc_srl):0;
+	$is_restrict = $mi->use_restrict_view!='N'&&!$is_granted&&!$is_secret?$oThis->isRestrict($doc_srl):0;
+
+	$exks = ((!$is_secret || $is_granted) && $oDocument->isExtraVarsExists()) ? $oDocument->getExtraVars() : array();
+	$tags = (!$is_secret || $is_granted) ? $oDocument->get('tag_list') : array();
+	$ufls = ((!$is_secret || $is_granted) && $oDocument->hasUploadedFiles()) ? $oDocument->getUploadedFiles() : array();
+
+	$un_extra = $oDocument->get('extra_vars');
+	$un_extra = is_string($un_extra)?unserialize($un_extra):$un_extra;
+
+	$my_point = $oThis->getPoint();
+	$auction_status = (int) $oDocument->get('is_notice');
+	$start_point = (int)$un_extra->beluxe->extra->start_point;
+	$end_point = (int)$un_extra->beluxe->extra->end_point;
+	$start_point>$end_point ? $start_point = 0 : 0;
+	$end_time = ztime($oDocument->get('regdate'))+($un_extra->beluxe->extra->end_time*60*60);
+	$complete_time = (int)$un_extra->beluxe->action->complete_time + 864000;
+
+	$voted_list = $oThis->getDocumentVotedLogs($doc_srl);
+	$is_voted = $grant->write_comment && $is_logged && $oDocument->isEnableComment() && $oDocument->allowComment();
+	$is_voted && $oThis->member_srl ? $is_voted = $voted_list[$oThis->member_srl]->point : 0;
+
+	$is_owner = $oThis->member_srl && $oDocument->get('member_srl') == $oThis->member_srl;
+	$recover_pay_point = 5;
+	$cols = array('colGreen','colBlue','colPurple','colRed');
+}
+
+<!--@if(count($voted_list))-->
+	{@
+		reset($voted_list);
+		$cur_voted = $auction_status?end($voted_list):current($voted_list);
+	}
+<!--@endif-->
+
+<!--@if($grant->manager&&$auction_action==4)-->
+	{@ $out = $oThis->setCustomStatus($doc_srl, 4)}
+	<!--@if($out->toBool()&&$auction_status>0&&$cur_voted->point<0)-->
+		{@ $ccPoint = &getController('point')}
+		<!--@if($auction_status==3)-->
+			{@
+				$mbr_srl = $oDocument->get('member_srl');
+				$mbr_srl?$ccPoint->setPoint($mbr_srl, abs($cur_voted->point), 'minus'):0;
+				$mbr_srl?$my_point=($my_point - abs($cur_voted->point)):0;
+			}
+		<!--@endif-->
+		{@
+			$mbr_srl = $cur_voted->member_srl;
+			$mbr_srl?$oThis->setVotePoint($doc_srl, $mbr_srl, abs($cur_voted->point)):0;
+			$mbr_srl?$oThis->sendMessageToMember(0,$mbr_srl,$lang->msg_auction_canceled,sprintf($lang->msg_auction_point_recovery, abs($cur_voted->point), $oDocument->getPermanentUrl())):0;
+			$oDocument->get('member_srl')?$oThis->sendMessageToMember(0,$oDocument->get('member_srl'),$lang->msg_auction_canceled,($auction_status==3?sprintf($lang->msg_auction_point_reduced, abs($cur_voted->point), $oDocument->getPermanentUrl()):$oDocument->getPermanentUrl())):0;
+		}
+	<!--@endif-->
+	{@
+		$out->toBool() ? $auction_status = 4 : 0;
+		$out->toBool() ? $is_voted = abs($cur_voted->point) : 0;
+	}
+<!--@endif-->
+
+<!--@if($auction_status < 3)-->
+	<!--@if(!$auction_status && ((time() > $end_time)||($is_voted&&($end_point<=$is_voted))))-->
+		{@
+			$out = $oThis->setCustomStatus($doc_srl, ((int) $oDocument->getCommentCount()>0?1:3));
+			$auction_status = $out->toBool()?1:0;
+			$auction_status?$oThis->setCustomActions($doc_srl, array('complete_time',time())):0;
+			$auction_status?$complete_time = time() + 864000:0;
+		}
+		<!--@if($auction_status && count($voted_list))-->
+		{@
+			$mbr_srl = $cur_voted->member_srl;
+			$is_voted = abs($cur_voted->point)*-1;
+			$mbr_srl?$oThis->setVotePoint($doc_srl, $mbr_srl, $is_voted):0;
+			$mbr_srl?$oThis->sendMessageToMember($oDocument->get('member_srl'),$mbr_srl,$lang->msg_auctioned_off,sprintf($lang->msg_auction_send_phone, $un_extra->beluxe->extra->phone_number, $oDocument->getPermanentUrl())):0;
+		}
+		<!--@endif-->
+	<!--@elseif($auction_status===1 && count($voted_list))-->
+		<!--@if($oThis->member_srl && $auction_action==1)-->
+		{@
+			$tmp_action = $cur_voted->member_srl == $oThis->member_srl;
+			$tmp_action ? $out = $oThis->setCustomStatus($doc_srl, 2) : 0;
+			$auction_status= ($tmp_action&&$out->toBool()) ? 2 : 1;
+			$mbr_srl = $oDocument->get('member_srl');
+			$mbr_srl?$oThis->sendMessageToMember(0,$mbr_srl,$lang->msg_transactions_verification,sprintf($lang->msg_transactions_verification, $oDocument->getPermanentUrl())):0;
+		}
+		<!--@elseif($complete_time&&time()>$complete_time)-->
+		{@
+			$out = $oThis->setCustomStatus($doc_srl, 2);
+			$auction_status= $out->toBool() ? 2 : 1;
+			$mbr_srl = $oDocument->get('member_srl');
+			$mbr_srl?$oThis->sendMessageToMember(0,$mbr_srl,$lang->msg_transactions_verification,sprintf($lang->msg_transactions_verification, $oDocument->getPermanentUrl())):0;
+		}
+		<!--@endif-->
+	<!--@elseif($is_owner && $auction_status==2 && $auction_action==2 && count($voted_list))-->
+		{@
+			$out = $oThis->setCustomStatus($doc_srl, 3);
+			$auction_status = $out->toBool() ? 3 : 2;
+		}
+		<!--@if($out->toBool()&&$cur_voted->point<0)-->
+		{@
+			$ccPoint = &getController('point');
+			$mbr_srl = $oDocument->get('member_srl');
+			$mbr_srl?$ccPoint->setPoint($mbr_srl, abs($cur_voted->point), 'add'):0;
+			$mbr_srl?$my_point=($my_point + abs($cur_voted->point)):0;
+		}
+		<!--@endif-->
+	<!--@endif-->
+<!--@endif-->
+
+<div id="siHrm"><a name="document"></a>
+	<ul class="scFrm">
+		{@ $cate = $is_cts?$cts[$oDocument->get('category_srl')]:0 }
+		<li class="scElps" data-active="true"|cond="$is_elips">
+			<strong class="scClipboard fl" data-get="text" data-attr="title" title="{$oDocument->getPermanentUrl()}">{$oDocument->getTitle($mi->title_length)}</strong>
+			<strong cond="$cate" class="fr" title="{htmlspecialchars($cate->description)}" style="color:{$cate->color}"|cond="$cate->color">[{$cate->title}]</strong>
+		</li>
+	</ul>
+</div>
+
+<div id="siDoc"><a name="document_{$doc_srl}"></a>
+	<ul class="scFrm mbAfrm">
+		<li class="clearBar">
+			<div class="fl">
+				<img cond="$is_secret" class="scIcoSet secret" title="Secret" src="img/common/blank.gif" />
+				{@
+					$mbsl = $oDocument->get('member_srl');
+					$home = $oDocument->get('homepage');
+					$nick = (!$mbsl||$ds_nick||!$ds_user)?cut_str($oDocument->getNickName(), $mi->nickname_length):'';
+					$nick .= ($mbsl&&$ds_user)?($nick?' (':'').cut_str($oDocument->getUserName(), $mi->nickname_length).($nick?')':''):'';
+				}
+				<strong>
+				<i cond="!$mbsl && !$home">{$nick}</i>
+				<span cond="$mbsl" class="scHLink member_{$mbsl}">{$nick}</span>
+				<i cond="!$mbsl && $home" class="scHLink" data-href="{$home}">{$nick}</i>
+				</strong>
+				<span cond="$mi->display_ip_address == 'Y'||($mi->display_ip_address == 'A' && $grant->manager)" class="ipAddress">(IP: {$oDocument->getIpaddress()})</span>
+			</div>
+			<div class="fr">
+				<block cond="$mi->star_style=='N'">
+					<block cond="$ds_readed">
+						<span>{$lang->readed_count}:</span>
+						<span>{$oDocument->get('readed_count')},</span>
+					</block>
+					<block cond="$ds_voted || $ds_blamed">
+						<span>{$lang->voted_count}:</span>
+						<span>{$oDocument->get('voted_count').'/'.$oDocument->get('blamed_count')},</span>
+					</block>
+				</block>
+				<block cond="$ds_update"><span title="{$lang->last_update}">{zdate($oDocument->get('last_update'))}</span><span title="{$lang->regdate}">({$oDocument->getRegdate('Y.m.d')})</span></block>
+				<span cond="!$ds_update" title="{$lang->regdate}">{$oDocument->getRegdate()}</span>
+				<block cond="$mi->star_style!='N' && ($ds_voted || $ds_blamed || $ds_readed)">
+					{@
+						$votedp = (int)$oDocument->get('voted_count');
+						$blamedp = (int)$oDocument->get('blamed_count');
+						$totalp = $votedp?(($votedp / ($votedp + abs($blamedp)) * 100) * 0.5):0;
+					}
+					<span cond="$ds_readed" class="scRdStar color{$mi->star_style}" title="{$lang->readed_count}">{$oDocument->get('readed_count')}</span>
+					<span cond="$ds_voted || $ds_blamed" class="scVtStar color{$mi->star_style}" title="{$lang->voted_count}: {$votedp.'/'.$blamedp}"><em style="width:{$totalp}px"></em></span>
+				</block>
+				<span class="{$cols[$auction_status]}">[{$lang->auction_status[(int)$auction_status]}]</span>
+			</div>
+		</li>
+	</ul>
+	<ul cond="$grant->view" class="scFrm">
+		<li>
+			<div class="thmAx clearBar" style="margin-right:{(int)$mi->thumbnail_width+25}px;">
+				{@ $is_grant = $grant->view && (!$oDocument->isSecret() || $oDocument->isGranted())}
+				<!--@if($is_blind || !$is_grant)-->
+					<img class="thum" src="img/common/thum_{$is_blind?'blind':'secret'}.png" alt="{$is_blind?'blind':'secret'}" title="{$is_blind?'blind':'secret'}" height="{$mi->thumbnail_height}" width="{$mi->thumbnail_width}"/>
+				<!--@else-->
+					<!--@if($oDocument->thumbnailExists($mi->thumbnail_width, $mi->thumbnail_height, $mi->thumbnail_type))-->
+						<img class="thum" src="{$oDocument->getThumbnail($mi->thumbnail_width, $mi->thumbnail_height, $mi->thumbnail_type)}" border="0" alt=""/>
+					<!--@else-->
+						<img class="thum" src="img/common/thum_no.png" alt="no image" title="no image" height="{$mi->thumbnail_height}" width="{$mi->thumbnail_width}"/>
+					<!--@endif-->
+				<!--@endif-->
+
+				{@ $end_time = ztime($oDocument->get('regdate'))+($un_extra->beluxe->extra->end_time*60*60)}
+
+				<ul class="scVext" style="margin-left:{(int)$mi->thumbnail_width+25}px;">
+					<li class="pntIfo"><label>{$lang->start_point}</label> <span>{$start_point}</span></li>
+					<li class="pntIfo"><label>{$lang->end_point}</label> <span>{$end_point}</span></li>
+					<li class="pntIfo"><label>{$lang->end_time}</label> <span>{date('Y-m-d H:i:s',$end_time)}</span></li>
+					<block cond="count($exks)">
+						<li loop="$exks=>$key,$val">
+							<label>{$val->name}</label>
+							{$val->getValueHTML()}
+						</li>
+					</block>
+				</ul>
+			</div>
+			<div class="scDocCon clearBar {$is_blind?'blind':($is_secret?'secret':'')}">
+				<div cond="$ds_mtlng&&count($un_extra->beluxe->langs)" class="scVlng clearBar">
+					<a loop="$un_extra->beluxe->langs => $vlnc" href="#" onclick="doChangeLangType('{$vlnc}');return false;" class="{$vlnc}"><strong>{$lang_supported[$vlnc]}</strong></a>
+				</div>
+
+				<form cond="$is_secret && !$is_granted" ruleset="checkPassword" action="./" method="post" class="conSecret">
+					<input type="hidden" name="document_srl" value="{$doc_srl}" />
+					<input type="hidden" name="act" value="procBoardVerificationPassword" />
+					<div class="btnArea">
+						<span class="scBtn black"><input type="password" name="password" /></span>
+						<span class="scBtn black"><input type="submit" value="{$lang->cmd_input}" /></span>
+					</div>
+				</form>
+
+				<!--@if($is_restrict)-->
+					<div id="restricted_view">
+						<div class="msgArea">
+							{sprintf(Context::getLang('msg_restricted_view'), 100)}
+							<br />
+							{Context::getLang($mi->use_restrict_view == 'P' ? 'msg_required_point' : 'msg_required_comment')}
+						</div>
+						{$oDocument->getSummary(100)}
+						<div cond="$mi->use_restrict_view == 'P'" class="btnArea">
+							<span class="btn">
+								<a href="#" onclick="doCallModuleAction('beluxe','procBeluxePayPoint','{$doc_srl}');return false">
+									{sprintf(Context::getLang('msg_point_is_used'), $un_extra->beluxe->use_point?$un_extra->beluxe->use_point:'0')}
+								</a>
+							</span>
+						</div>
+					</div>
+				<!--@else-->
+					{$oDocument->getContent(false)}
+				<!--@endif-->
+			</div>
+
+			<include cond="!$is_secret&&!$is_restrict&&$mi->use_history&&$mi->use_history!='N'" target="_etc.histories.html" />
+
+			<div cond="$mi->document_bottom_text" class="scMbtTxt clearBar">
+				{$mi->document_bottom_text}
+			</div>
+
+			<div cond="$tag_cnt = count($tags)" class="tags">
+				<block loop="$i=0;$i<$tag_cnt;$i++"> {@ $tag = $tags[$i]}
+					<span cond="$i">, </span><a href="{$oEntry->getUrl('','mid',$mid,'search_target','tag','search_keyword',$tag,'document_srl','')}" class="tag" rel="tag">{htmlspecialchars($tag)}</a>
+				</block>
+			</div>
+
+			<div class="actBtns clearBar">
+				<block cond="$is_logged">
+					{@
+						$ds_voteup = strpos($mi->use_vote, 'up')!==false;
+						$ds_votedown = strpos($mi->use_vote, 'down')!==false;
+						$ds_declare = strpos($mi->use_vote, 'declare')!==false;
+						$adm_id = $ds_declare ? $oThis->getAdminId() : array();
+					}
+					<span cond="$ds_voteup||$ds_votedown||$ds_declare" class="scVoteArea fl">
+						<span cond="$ds_voteup||$ds_votedown" class="scBtn small group"><a cond="$ds_voteup" href="#recommend" data-type="document" data-srl="{$doc_srl}" accesskey="z"><em class="vote">{$lang->short_voted_count}</em><em class="cnt">{$oDocument->get('voted_count')}</em></a><a cond="$ds_votedown" href="#not_recommend" data-type="document" data-srl="{$doc_srl}" accesskey="x"><em class="blame">{$lang->short_blamed_count}</em><em class="cnt">{$oDocument->get('blamed_count')}</em></a></span>
+						<span cond="$ds_declare" class="scBtn small group"><a href="#declare" data-type="document" data-srl="{$doc_srl}" data-rec="{count($adm_id)?$adm_id[0]->member_srl:$oDocument->get('member_srl')}"><em class="declare">{$lang->cmd_declare}</em></a></span>
+					</span>
+				</block>
+				<a cond="$mi->display_document_do!='N'" class="document_{$doc_srl} action" href="#popup_menu_area" onclick="return false">{$lang->cmd_document_do}</a>
+				<ul cond="$mi->display_button_sns != 'N'" class="scSns">
+					<li class="twitter link"><a href="http://twitter.com/" target="_blank" data-type="tw" title="Twitter">Twitter</a></li>
+					<li class="me2day link"><a href="http://me2day.net/" target="_blank" data-type="me" title="Me2day">Me2day</a></li>
+					<li class="facebook link"><a href="http://facebook.com/" target="_blank" data-type="fa" title="Facebook">Facebook</a></li>
+					<li class="delicious link"><a href="http://delicious.com/" target="_blank" data-type="de" title="Delicious">Delicious</a></li>
+				</ul>
+			</div>
+
+			<div class="sign clearBar" cond="($mi->display_profile!='N'&&$mi->display_profile!='C')&&($oDocument->getProfileImage()||$oDocument->getSignature())">
+				<img cond="$oDocument->getProfileImage()" src="{$oDocument->getProfileImage()}" alt="Profile" class="pf" />
+				<div cond="$oDocument->getSignature()" class="tx">{$oDocument->getSignature()}</div>
+			</div>
+
+			{@
+				$ds_flsgn = $mi->display_attached_files=='Y'||$mi->display_attached_files=='G';
+				$ds_flsmd = $mi->display_attached_files=='Y'||$mi->display_attached_files=='M';
+			}
+			<div cond="($ds_flsgn||$ds_flsmd)&&count($ufls)" class="scFiles">
+				<ul>
+					<li loop="$ufls=>$key,$file" cond="($ds_flsgn&&$file->direct_download!='Y')||($ds_flsmd&&$file->direct_download=='Y')" class="notvalid"|cond="$file->isvalid!='Y'" class="direct"|cond="$file->isvalid=='Y'&&$file->direct_download=='Y'">
+						{@
+							$t_down_pt = $mi->use_restrict_down == 'P' && (!$logged_info || $logged_info->member_srl != $file->member_srl);
+							$t_down_pt = $t_down_pt && !$oThis->isDownloaded($file->file_srl) ? (int)$un_extra->beluxe->use_point : 0;
+						}
+						<a cond="!$file->file_size" href="{$file->isvalid=='Y'?$file->uploaded_filename:'#'}" target="_blank"|cond="$file->isvalid=='Y'">{$file->source_filename}<span class="fsize">(link)</span></a>
+						<a cond="$file->file_size" href="{$file->isvalid=='Y'?getUrl('').$file->download_url:'#'}" onclick="return confirm(sj_download_message.replace('%s','{$t_down_pt}'))"|cond="$t_down_pt" class="isdownpt"|cond="$t_down_pt">{$file->source_filename}<span class="fsize">({FileHandler::filesize($file->file_size)}/{number_format($file->download_count)})</span></a>
+					</li>
+				</ul>
+			</div>
+		</li>
+	</ul>
+</div>
+<!-- /DOCUMENT -->
+
+<div class="btnArea">
+	<span class="fl">
+	<span class="scBtn" cond="$category_srl"><a href="{$oEntry->getUrl('','mid',$mid)}">{$lang->cmd_all_list}</a></span>
+	<span cond="$grant->manager&&$auction_status!=4" class="scBtn blue" style="margin-right:10px"><a href="{getUrl('auction_action','4')}" onclick="return confirm('{$lang->confirm_cancel_auction}')">{$lang->cmd_cancel_auction}</a></span>
+	</span>
+	<span class="scBtn"><a href="{$oEntry->getUrl('act', '','document_srl','','auction_action','','npage','','cpage','')}" accesskey="l">{$lang->cmd_list}</a></span>
+	<span cond="!$is_locked && $oDocument->isEditable()" class="scBtn black"><a href="{$us_modal?'#siModalWin':$oEntry->getUrl('act','dispBoardWrite','document_srl',$document_srl,'auction_action','')}" class="modalAnchor"|cond="$us_modal" data-mode="update">{$lang->cmd_modify}</a></span>
+	<span cond="!$is_locked && $oDocument->isEditable()" class="scBtn black"><a href="{$us_modal?'#siModalWin':$oEntry->getUrl('act','dispBoardDelete','document_srl',$document_srl,'auction_action','')}" class="modalAnchor"|cond="$us_modal" data-mode="delete">{$lang->cmd_delete}</a></span>
+</div>
+
+<!-- COMMENT -->
+<include cond="$oDocument->allowComment() || $oDocument->getCommentcount()" target="_viw.comment.html" />
+<!-- /COMMENT -->

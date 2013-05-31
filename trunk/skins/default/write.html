@@ -1,0 +1,17 @@
+<include cond="$is_modal" target="___setting.html" />
+<include cond="!$is_modal" target="__header.html" />
+
+<div id="siBody" style="background-color:transparent!important"|cond="$act=='dispBoardWriteComment'">
+	<div class="scContent clearBar">
+		{@
+			$oTemplate = &TemplateHandler::getInstance();
+			print $oTemplate->compile($tpl_path, '_tpl.'.($act=='dispBoardWriteComment'?'c.insert':'insert').'.html');
+		}
+	</div>
+</div>
+
+<div cond="$is_modal&&$XE_VALIDATOR_MESSAGE" class="modalmessage {$XE_VALIDATOR_MESSAGE_TYPE}" style="display:none">
+	<p>{nl2br($XE_VALIDATOR_MESSAGE)}</p>
+</div>
+
+<include cond="!$is_modal" target="__footer.html" />

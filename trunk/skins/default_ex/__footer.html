@@ -1,0 +1,18 @@
+<div id="siMaFtxt" cond="$mi->footer_text" class="clearBar">
+	{$mi->footer_text}
+</div>
+
+<!--// 블러그일땐 category_srl을 직접 입력함, 댓글 수정/삭제시 분류 초기화 방지  -->
+<script cond="($lsttp=='blog'||$lsttp=='guest') && ($us_modal||$category_srl||$ds_declare||$ds_cdeclare)" type="text/javascript">
+//<![CDATA[
+<!--@if($lsttp=='blog'&&$category_srl)-->
+	current_url = current_url.setQuery('category_srl',"{$category_srl}");
+<!--@endif-->
+	<!--@if($ds_declare||$ds_cdeclare)-->
+	var sj_declare_message = '{sprintf($lang->confirm_declare, $adm_id?$lang->manager:$lang->author)}';
+	<!--@endif-->
+<!--@if($us_modal)-->
+	jQuery('#siDoc,#siFbk.cmt').xeModalFlashFix();
+<!--@endif-->
+//]]>
+</script>

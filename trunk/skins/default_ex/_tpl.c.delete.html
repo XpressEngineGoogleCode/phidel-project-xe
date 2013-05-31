@@ -1,0 +1,59 @@
+{@
+	$is_error = $BELUXE_MESSAGE_TYPE == 'error grant';
+
+	$rulepath = $tpl_path.'../../ruleset/'.($is_error?'checkPassword':'deleteComment').'.xml';
+	Context::addJsFile($rulepath, false, '', 0, 'head', true)
+}
+
+<form action="./" method="post">
+<input cond="$is_modal" type="hidden" name="is_modal" value="1" />
+<input type="hidden" name="module_srl" value="{$mi->module_srl}" />
+<input type="hidden" name="document_srl" value="{$document_srl}" />
+<input type="hidden" name="comment_srl" value="{$comment_srl}" />
+<input type="hidden" name="ruleset" value="{$is_error?'checkPassword':'deleteComment'}" />
+<input type="hidden" name="act" value="{$is_error?'procBoardVerificationPassword':'procBoardDeleteComment'}" />
+
+<div class="scLtitle">
+	<span>{$lang->comment.' '.$lang->no}: {$comment_srl} - {$lang->confirm_delete}</span>
+</div>
+
+<!--@if($is_error)-->
+	<input cond="$is_modal" type="hidden" name="success_return_url" value="{$oEntry->getUrl('act','','is_modal','')}" />
+
+	<div>
+		<span class="scBtn black"><input type="password" name="password" /></span>
+		<span class="scBtn black"><input type="submit" value="{$lang->cmd_input}" onclick="setCookie('write_mode','comment/delete/{$comment_srl}',null,'/')" /></span>
+		<span class="scBtn"><a href="{$is_modal?'#siModalWin':$oEntry->getUrl('','mid',$mid,'act','','document_srl',$document_srl,'comment_srl',$comment_srl,'parent_srl','')}" class="btnModalClose"|cond="$is_modal">{$lang->cmd_back}</a></span>
+	</div>
+<!--@else-->
+	{@
+		$ds_nick = $ci['nick_name']->display == 'Y';
+		$ds_user =	$ci['user_name']->display == 'Y';
+	}
+	<input cond="$lsttp!='blog'" type="hidden" name="success_return_url" value="{$oEntry->getUrl('act','','is_modal','','document_srl','','comment_srl','','document_no',$document_srl,'scroll_target','comment')}" />
+
+	<div id="siWrt">
+		<div class="scCpar clearBar">
+			<h3 class="author">
+				{@
+					$mbsl = $oComment->get('member_srl');
+					$home = $oComment->get('homepage');
+					$nick = (!$mbsl||$ds_nick||!$ds_user)?$oComment->getNickName():'';
+					$nick .= ($mbsl&&$ds_user)?($nick?' (':'').$oComment->getUserName().($nick?')':''):'';
+				}
+				<i cond="!$mbsl && !$home">{$nick}</i>
+				<span cond="$mbsl" class="scHLink member_{$mbsl}">{$nick}</span>
+				<i cond="!$mbsl && $home" class="scHLink" data-href="{$home}">{$nick}</i>
+			</h3>
+			<div class="clearBar">
+				{preg_replace(array('! name=(\"|\')?([^\"\']+)(\"|\')?!is','!<(iframe|embed|object)(.*?)>(.*?)<\/(iframe|embed|object)>!is'), array('','<div class="message"><p>$1 $2</p></div>'), $oComment->getContent(false))}
+			</div>
+		</div>
+
+		<div class="btnArea" style="margin-bottom:0"|cond="$is_modal">
+			<span class="scBtn"><a href="{$is_modal?'#siModalWin':$oEntry->getUrl('','mid',$mid,'act','','document_srl',$document_srl,'comment_srl',$comment_srl,'parent_srl','')}" class="btnModalClose"|cond="$is_modal">{$lang->cmd_back}</a></span>
+			<span class="scBtn black"><button type="submit" accesskey="s">{$lang->comment} {$lang->cmd_delete}</button></span>
+		</div>
+	</div>
+<!--@endif-->
+</form>

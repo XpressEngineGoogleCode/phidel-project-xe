@@ -1,0 +1,43 @@
+{@
+	$t_pagec = $page_navigation->cur_page;
+	$t_pagep = $t_pagec - 1;
+	$t_pagen = $t_pagec + 1;
+}
+
+<!-- NAVIGATION -->
+<div id="siNavi">
+	<h2>{sprintf($lang->nav_caption, $is_cts?$cts[(int)$category_srl]->title:'ALL')}</h2>
+	<ul>
+		<li loop="$document_list=>$no,$navigation" class="clearBar">
+			{@
+				$t_cmtn = $navigation->getCommentCount();
+				$t_tbkn = $navigation->getTrackbackCount();
+				$un_extra = ($is_rtrpt||$ao_ppang||$ds_mtlng)?$navigation->get('extra_vars'):null;
+				$un_extra = is_string($un_extra)?unserialize($un_extra):$un_extra;
+			}
+			<div class="no fl">
+				{($t_pagec===$no)?'<strong class="sCkChr">&radic;</strong>':(($t_pagec<$no)?'Next':'Prev')}
+			</div>
+			<div cond="$is_cts" class="cate fl">
+				{@ $cate = $cts[$navigation->get('category_srl')] }
+				<a cond="$cate" href="{$oEntry->getUrl('','mid',$mid,'category_srl',$cate->category_srl)}" title="{htmlspecialchars($cate->description)}" style="color:{$cate->color}"|cond="$cate->color">[{$cate->title}]</a>
+				<span cond="!$cate">[{$lang->none_category}]</span>
+			</div>
+			<div class="scElps" data-active="true"|cond="$is_elips">
+				<a class="fl" href="{$oEntry->getUrl('','mid',$mid,'document_srl',$navigation->document_srl,'sort_index',$sort_index,'order_type',$order_type,'search_target',$search_target,'search_keyword',$search_keyword)}" accesskey="b"|cond="$t_pagep===$no" accesskey="n"|cond="$t_pagen===$no">
+					<em cond="$is_rtrpt" class="usept" title="Point">{$un_extra->beluxe?abs((int)$un_extra->beluxe->use_point):'0'}</em>
+					{$navigation->getTitle($mi->title_length)}
+				</a>
+				<span class="fr">
+					<em cond="$t_cmtn" class="reply" title="Replies">+{$t_cmtn}</em><em cond="$t_tbkn" class="trackback" title="Trackbacks">.{$t_tbkn}</em>
+					{$navigation->printExtraImages(60*60*$mi->duration_new)}<img class="scIcoSet world" src="img/common/blank.gif" alt="multilingual" title="multilingual" cond="$ds_mtlng&&count($un_extra->beluxe->langs)" />
+					<block cond="$ao_ppang&&$un_extra->ppang&&$un_extra->ppang->d->p>0">
+						{@$ao_pppt = sprintf($lang->bonus_pang_pang, $un_extra->ppang->d->p)}
+						<img class="scIcoSet coin" src="img/common/blank.gif" title="{$ao_pppt}" alt="{$ao_pppt}" />
+					</block>
+				</span>
+			</div>
+		</li>
+	</ul>
+</div>
+<!-- /NAVIGATION -->

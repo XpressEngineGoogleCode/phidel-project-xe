@@ -1,0 +1,287 @@
+{@
+	$ds_readed = $ci['readed_count']->display == 'Y';
+	$ds_voted = $ci['voted_count']->display == 'Y';
+	$ds_blamed = $ci['blamed_count']->display == 'Y';
+	$ds_status = $ci['custom_status']->display == 'Y';
+
+	$ds_nick = $ci['nick_name']->display == 'Y';
+	$ds_user =	$ci['user_name']->display == 'Y';
+
+	$ds_regdate = $ci['regdate']->display == 'Y';
+	$ds_update = $ci['last_update']->display == 'Y';
+	$ds_updater = $ci['last_updater']->display == 'Y';
+	$ds_update && $ds_updater ? $ci['last_update']->display = 'N' : 0;
+
+	$ci['content']->display = 'N';
+	$ci['comment']->display = 'N';
+	$ci['thumbnail']->display = 'N';
+	$ci['tag']->display = 'N';
+
+	$mi->star_style!='N' ? $ci['blamed_count']->display = 'N' : 0;
+	$mi->star_style!='N' && $ds_voted ? $ci['readed_count']->display = 'N' : 0;
+
+	$lang->short_readed_count ? $ci['readed_count']->name = $lang->short_readed_count : 0;
+	$lang->short_blamed_count ? $ci['blamed_count']->name = $lang->short_blamed_count : 0;
+	$lang->short_voted_count ? $ci['voted_count']->name = $lang->short_voted_count : 0;
+	$mi->star_style!='N' ? $ci['voted_count']->name = $lang->star_column : 0;
+
+	$colcnt = $sotcnt = 0;
+	$sclms = array();
+	$is_notice_widget = !$is_doc;
+	$a_lsttp = array('notice'=>&$notice_list,'best'=>&$best_list);
+}
+
+<block loop="$ci => $key,$val" cond="$val->display=='Y'">
+	{@
+		$colcnt += $val->idx<0?1:0;
+		$sclms[$key] = $val;
+	}
+</block>
+
+<include cond="$is_notice_widget && (count($notice_list) || count($best_list))" target="_etc.noticewidget.html" />
+
+<div cond="$mi->display_list_header!='N'" id="siHrm" class="clearBar">
+	<ul class="scFrm">
+		<li class="scElps fl"><strong>{$grant->write_document?$mi->guest_caption:$lang->msg_write_not_permitted}</strong></li>
+		<li class="scHaDCnts">
+			<!--@if($mi->display_document_count!='N')-->
+			<em>Today</em> <strong>{$oThis->getDocumentCountByDate(date("Ymd"))}</strong>,
+			<em>Yesterday</em> <strong>{$oThis->getDocumentCountByDate(date("Ymd",strtotime("-1 day", time())))}</strong>,
+			<em>Total</em> <strong>{$total_count}</strong>
+			<!--@else-->
+			<span>&nbsp;</span>
+			<!--@endif-->
+		</li>
+	</ul>
+</div>
+
+<form ruleset="insertDocument" action="./" method="post" class="scGwf">
+	<input type="hidden" name="module_srl" value="{$mi->module_srl}" />
+	<input type="hidden" name="act" value="procBoardInsertDocument" />
+	<input type="hidden" name="title" value="{$is_logged?'member':'guest'}.p0" />
+	<input type="hidden" name="text_editor" value="Y" />
+	<input type="hidden" name="success_return_url" value="{$oEntry->getUrl('act','','is_modal','','document_srl','','comment_srl','','document_no','')}" />
+	<div class="scGucont clearBar">
+		<img src="{$logged_info->profile_image->src}" cond="$is_logged&&$logged_info->profile_image" data-index="0" alt="Profile" class="profile" onclick="return sjChangeProfile(this)" />
+		<img src="./img/common/profile.gif" cond="!$is_logged||!$logged_info->profile_image" data-index="0" alt="Profile" class="profile" onclick="return sjChangeProfile(this)" />
+		<textarea name="content" <!--@if(!$grant->write_document)-->class="scGotoLoginPage" readonly="readonly" placeholder="{$lang->msg_write_not_permitted}"<!--@endif-->></textarea>
+	</div>
+	<div class="scInfo clearBar">
+		<div class="fl">
+			<block cond="!$is_logged">
+				{@ $is_guestinfo = $mi->use_input_guest_info == 'N' ? $oThis->getIpaddress(1) : ''}
+				<label class="scLaEt">
+					<span>Name</span>
+					<input type="text" name="nick_name" maxlength="80" value="{$is_guestinfo?$is_guestinfo:''}" readonly="readonly"|cond="$is_guestinfo" disabled="disabled"|cond="!$grant->write_document" />
+				</label>
+				<label class="scLaEt">
+					<span>Pass</span>
+					<input type="password" name="password" disabled="disabled"|cond="!$grant->write_document" />
+				</label>
+				<block cond="$mi->use_input_guest_info != 'N' && $mi->use_input_guest_info != 'S'">
+					<label class="scLaEt">
+						<span>Email</span>
+						<input type="text" name="email_address" maxlength="250" disabled="disabled"|cond="!$grant->write_document" />
+					</label>
+					<label class="scLaEt">
+						<span>Home</span>
+						<input type="text" name="homepage" maxlength="250" disabled="disabled"|cond="!$grant->write_document" />
+					</label>
+				</block>
+			</block>
+			<block cond="$is_logged">
+				<input type="hidden" name="nick_name" value="1" />
+				<input type="hidden" name="password" value="1" />
+				{@ $t_dstus = explode(',', $mi->use_status)}
+				<label cond="count($t_dstus) > 1" loop="$t_dstus => $key,$value">
+					<input type="radio" name="status" value="{$value}" checked="checked"|cond="!$key" />
+					{Context::getLang(strtolower($value))}
+				</label>
+				<label> <input type="checkbox" name="use_html" value="Y" /> HTML</label>
+				<label> <input type="checkbox" name="notify_message" value="Y" /> {$lang->notify}</label>
+			</block>
+			<input type="hidden" name="allow_comment" value="Y" />
+		</div>
+		<div class="fr">
+			<block cond="!$category_srl&&$is_cts" loop="$cts => $val" cond="$val->category_srl">
+				{@ $category_srl = $val->category_srl}
+				<?php break; ?>
+			</block>
+			<input cond="$category_srl" type="hidden" name="category_srl" value="{$category_srl}" />
+			<span class="scBtn black"><button type="submit" accesskey="w" disabled="disabled"|cond="!$grant->write_document">{$lang->document_write}</button></span>
+		</div>
+	</div>
+</form>
+
+{@
+	$document_srl?$document_list=array($oDocument):0;
+	$ds_voteup = strpos($mi->use_vote, 'up')!==false;
+	$ds_votedown = strpos($mi->use_vote, 'down')!==false;
+	$ds_declare = strpos($mi->use_vote, 'declare')!==false;
+	$adm_id = $ds_declare ? $oThis->getAdminId() : array();
+}
+<a name="document"></a>
+<div cond="count($document_list)" id="siDoc" class="book guest">
+<!-- /LIST -->
+	<div loop="$document_list => $no,$document" class="scItem clearBar"><a name="document_{$document->document_srl}" data-scroll="true"|cond="$document_no&&$document_no==$document->document_srl"></a>
+		{@
+			$oDocument = &$document;
+			$doc_srl = $oDocument->document_srl;
+
+			$is_granted = $grant->view && $oDocument->isGranted();
+			$is_secret = $oDocument->isSecret();
+			$is_locked = $is_cklok?$oThis->isLocked($doc_srl):0;
+			$is_blind = $mi->use_blind=='Y'?$oThis->isBlind($doc_srl):0;
+			$is_restrict = $mi->use_restrict_view!='N'&&!$is_granted&&!$is_secret?$oThis->isRestrict($doc_srl):0;
+
+			$exks = ((!$is_secret || $is_granted) && $oDocument->isExtraVarsExists()) ? $oDocument->getExtraVars() : array();
+
+			$un_extra = ($is_rtrpt||$ao_ppang||$ds_mtlng)?$oDocument->get('extra_vars'):null;
+			$un_extra = is_string($un_extra)?unserialize($un_extra):$un_extra;
+		}
+
+		<strong cond="$ds_regdate || $ds_update" class="scRibbon">
+			<span class="caption">
+				{$ds_regdate ? $document->getRegdate('D, d F Y') : zdate($document->get('last_update'),'D, d F Y')}
+			</span>
+		</strong>
+		<div class="scConfrm clearBar">
+			<ul class="scFrm mbAfrm">
+				<li class="clearBar">
+					<span class="fl">
+						<img cond="$is_secret" class="scIcoSet secret" src="img/common/blank.gif" />
+						<block cond="$ds_nick||$ds_user">
+							{@
+								$mbsl = $oDocument->get('member_srl');
+								$home = $oDocument->get('homepage');
+								$nick = (!$mbsl||$ds_nick)?cut_str($oDocument->getNickName(), $mi->nickname_length):'';
+								$nick .= ($mbsl&&$ds_user)?($nick?' (':'').cut_str($oDocument->getUserName(), $mi->nickname_length).($nick?')':''):'';
+							}
+							<i cond="!$mbsl && !$home">{$nick}</i>
+							<span cond="$mbsl" class="scHLink member_{$mbsl}">{$nick}</span>
+							<i cond="!$mbsl && $home" class="scHLink" data-href="{$home}">{$nick}</i>
+						</block>
+						<span cond="$mi->display_ip_address == 'Y'||($mi->display_ip_address == 'A' && $grant->manager)" class="ipAddress">(IP: {$oDocument->getIpaddress()})</span>
+					</span>
+					<span class="scCntIfo fr">
+						<block cond="$ds_voted || $ds_blamed">
+							<!--@if($mi->star_style!='N')-->
+								{@
+									$votedp = (int)$oDocument->get('voted_count');
+									$blamedp = (int)$oDocument->get('blamed_count');
+									$totalp = $votedp?(($votedp / ($votedp + abs($blamedp)) * 100) * 0.5):0;
+								}
+								<span class="scVtStar color{$mi->star_style}" title="{$lang->voted_count}: {$votedp.'/'.$blamedp}"><em style="width:{$totalp}px"></em></span>
+							<!--@else-->
+								<span>{$lang->voted_count}:</span>
+								<span>{$oDocument->get('voted_count').'/'.$oDocument->get('blamed_count')}</span>
+							<!--@endif-->
+						</block>
+						<span cond="$ds_status" class="custom_status_{(int)$oDocument->get('is_notice')}">[{$cstus[(int)$oDocument->get('is_notice')]}]</span>
+					</span>
+				</li>
+				<li cond="!$is_blind&&count($exks)" loop="$exks=>$key,$val" cond="$sclms['extra_vars'.$val->idx]" class="scVext clearBar">
+					<label>{$val->name}</label>: <span>{$val->getValueHTML()}</span>
+				</li>
+			</ul>
+			<span cond="$grant->manager" class="scCheck"><input type="checkbox" name="cart" value="{$doc_srl}" onclick="doAddDocumentCart(this)" checked="checked"|cond="$oDocument->isCarted()" /></span>
+
+			<div class="scDocCon clearBar {$is_blind?'blind':($is_secret?'secret':'')}">
+				<div cond="$ds_mtlng&&count($un_extra->beluxe->langs)" class="scVlng clearBar">
+					<a loop="$un_extra->beluxe->langs => $vlnc" href="#" onclick="doChangeLangType('{$vlnc}');return false;" class="{$vlnc}"><strong>{$lang_supported[$vlnc]}</strong></a>
+				</div>
+
+				{@
+					$pft = explode('.', $oDocument->get('title'));
+					$pft = (int) substr($pft[1],1,1);
+				}
+				<!--@if(!$pft)-->
+					<img src="./img/common/profile.gif" alt="Profile" class="profile" cond="!$oDocument->getProfileImage()" />
+					<img src="{$oDocument->getProfileImage()}" alt="Profile" class="profile" cond="$oDocument->getProfileImage()" />
+				<!--@else-->
+					<img src="./img/profile/p{$pft}.gif" alt="Profile" class="profile" />
+				<!--@endif-->
+				<div class="scOntent">
+					<form cond="$is_secret && !$is_granted" ruleset="checkPassword" action="./" method="post" class="conSecret">
+					<input type="hidden" name="document_srl" value="{$doc_srl}" />
+					<input type="hidden" name="act" value="procBoardVerificationPassword" />
+					<div class="btnArea">
+						<span class="scBtn black"><input type="password" name="password" /></span>
+						<span class="scBtn black"><input type="submit" value="{$lang->cmd_input}" /></span>
+					</div>
+					</form>
+
+					<!--@if($is_restrict)-->
+					<div id="restricted_view">
+						<div class="msgArea">
+							{sprintf(Context::getLang('msg_restricted_view'), 100)}
+							<br />
+							{Context::getLang($mi->use_restrict_view == 'P' ? 'msg_required_point' : 'msg_required_comment')}
+						</div>
+						{$oDocument->getSummary(100)}
+						<div cond="$mi->use_restrict_view == 'P'" class="btnArea">
+							<span class="btn">
+								<a href="#" onclick="doCallModuleAction('beluxe','procBeluxePayPoint','{$doc_srl}');return false">
+									{sprintf(Context::getLang('msg_point_is_used'), $un_extra->beluxe->use_point?$un_extra->beluxe->use_point:'0')}
+								</a>
+							</span>
+						</div>
+					</div>
+					<!--@else-->
+					{@ (!$is_secret||$is_granted) ? $oDocument->updateReadedCount() : 0}
+					{$is_blind?$lang->msg_is_blind:$oDocument->getContent(false)}
+					<!--@endif-->
+				</div>
+			</div>
+
+			<include cond="!$not_content&&!$is_blind&&!$is_secret&&$mi->use_history&&$mi->use_history!='N'" target="_etc.histories.html" />
+
+			<div class="scEditBtn clearBar">
+				<block cond="$is_logged">
+					<span cond="$ds_voteup||$ds_votedown||$ds_declare" class="scVoteArea fl">
+						<span cond="$ds_voteup||$ds_votedown" class="scBtn small group"><a cond="$ds_voteup" href="#recommend" data-type="document" data-srl="{$doc_srl}" accesskey="z"><em class="vote">{$lang->short_voted_count}</em><em class="cnt">{$oDocument->get('voted_count')}</em></a><a cond="$ds_votedown" href="#not_recommend" data-type="document" data-srl="{$doc_srl}" accesskey="x"><em class="blame">{$lang->short_blamed_count}</em><em class="cnt">{$oDocument->get('blamed_count')}</em></a></span>
+						<span cond="$ds_declare" class="scBtn small group"><a href="#declare" data-type="document" data-srl="{$doc_srl}" data-rec="{count($adm_id)?$adm_id[0]->member_srl:$oDocument->get('member_srl')}"><em class="declare">{$lang->cmd_declare}</em></a></span>
+					</span>
+				</block>
+				<span cond="!$is_locked && $oDocument->isEditable()" class="fr">
+					<a href="{$us_modal?'#siModalWin':$oEntry->getUrl('act','dispBoardWrite','document_srl',$doc_srl,'document_no','')}" class="modalAnchor"|cond="$us_modal" data-mode="update">{$lang->cmd_modify}</a>
+					<a href="{$us_modal?'#siModalWin':$oEntry->getUrl('act','dispBoardDelete','document_srl',$doc_srl,'document_no','')}" class="modalAnchor"|cond="$us_modal" data-mode="delete">{$lang->cmd_delete}</a>
+				</span>
+			</div>
+
+			<div class="trbAcmt clearBar">
+				<!-- TRACKBACK -->
+				<div cond="$oDocument->allowTrackback() || $oDocument->getTrackbackcount()" id="tbk_area"><include target="_viw.trackback.html" /></div>
+				<!-- /TRACKBACK -->
+				<!-- COMMENT -->
+				<div cond="$oDocument->allowComment() || $oDocument->getCommentcount()" id="cmt_area"><include target="_viw.comment.html" /></div>
+				<!-- /COMMENT -->
+			</div>
+		</div>
+
+	</div>
+<!-- /LIST -->
+</div>
+<div cond="!count($document_list)" class="scNoDocs"><div>{$lang->no_documents}</div></div>
+
+<script type="text/javascript">
+//<![CDATA[
+function sjChangeProfile(th)
+{
+	var idx = parseInt(jQuery(th).attr('data-index')) || 0;
+	if(idx < 9){
+		jQuery(th).attr('data-index', (++idx));
+		th.src = request_uri + "/modules/beluxe/skins/{$mi->skin}/img/profile/p"+idx+'.gif';
+	}else{
+		jQuery(th).attr('data-index', (idx=0));
+		<!--@if($is_logged&&$logged_info->profile_image)-->
+		th.src = "{$logged_info->profile_image->src}";
+		<!--@else-->
+		th.src = request_uri + "/modules/beluxe/skins/{$mi->skin}/img/common/profile.gif";
+		<!--@endif-->
+	}
+	jQuery('.scGwf input[name=title]').val("{$is_logged?'member':'guest'}.p" + idx);
+	return false;
+}
+//]]>
+</script>
