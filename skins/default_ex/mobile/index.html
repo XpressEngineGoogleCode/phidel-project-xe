@@ -1,0 +1,88 @@
+<include target="___setting.html" />
+
+<div class="bd" id="read"|cond="$is_doc">
+	<include cond="$is_doc" target="_read.html" />
+
+	<block cond="!$is_doc">
+		<div class="hx h2">
+			<h2><a href="{$oEntry->getUrl('','vid',$vid,'mid',$mid)}">{$mi->browser_title}</a> <em>[{number_format($total_count)}]</em></h2>
+			<a cond="$is_cts" href="{$oEntry->getUrl('page','','act','dispBeluxeMobileCategory','')}" class="ca">
+				{$cts[(int)$category_srl]->title}
+			</a>
+			<a cond="$lsttp != 'list'&&$lsttp != 'memo'&&$grant->write_document" href="{$oEntry->getUrl('act','dispBoardWrite','document_srl','')}" class="write">{$lang->cmd_write}</a>
+		</div>
+		<div cond="$mi->title||$mi->sub_title||$mi->board_desc" class="hx pn">
+			<block cond="$mi->title||$mi->sub_title">{$mi->title} | {$mi->sub_title}</block>
+			<div cond="$mi->board_desc" class="dc">{$mi->board_desc}</div>
+		</div>
+
+		{@
+			$ds_nick = $ci['nick_name']->display == 'Y';
+			$ds_user =	$ci['user_name']->display == 'Y';
+			$ds_cstus = $ci['custom_status']->display == 'Y'?1:0;
+
+			$notice_list = $oThis->getNoticeList();
+			$best_list = $mi->use_best=='Y'?$oThis->getBestList():array();
+			$a_lsttp = array('notice'=>&$notice_list,'best'=>&$best_list,''=>&$document_list);
+		}
+
+	<div cond="$lsttp == 'memo'&&$grant->write_document" class="mofr">
+		<form ruleset="insertDocument" action="./" method="post">
+			<input type="hidden" name="module_srl" value="{$mi->module_srl}" />
+			<input type="hidden" name="act" value="procBoardInsertDocument" />
+			<input type="hidden" name="content" value="1" />
+			<input type="hidden" name="success_return_url" value="{$oEntry->getUrl('act','','is_modal','','document_srl','','comment_srl','')}" />
+			<block cond="!$is_logged">
+				<block cond="$mi->use_input_guest_info != 'N'">
+					<label><input type="text" name="nick_name" maxlength="80" placeholder="{$lang->nick_name}" /></label>
+					<span>/</span>
+				</block>
+				<block cond="$mi->use_input_guest_info == 'N'">
+					<input type="hidden" name="nick_name" value="{$oThis->getIpaddress(1)}" />
+				</block>
+				<label><input type="password" name="password" placeholder="{$lang->password}" /></label>
+				<br />
+			</block>
+			<block cond="$is_logged">
+				<input type="hidden" name="nick_name" value="1" />
+				<input type="hidden" name="password" value="1" />
+			</block>
+			<block cond="!$category_srl&&$is_cts" loop="$cts => $val" cond="$val->category_srl">
+				{@ $category_srl = $val->category_srl}
+				<?php break; ?>
+			</block>
+			<input cond="$category_srl" type="hidden" name="category_srl" value="{$category_srl}" />
+			<input class="scScontent" type="text" name="title" maxlength="255" />
+			<button type="submit" class="shbn">{$lang->cmd_submit}</button>
+		</form>
+	</div>
+
+	{@
+		$oTemplate = &TemplateHandler::getInstance();
+		print $oTemplate->compile($tpl_path, '_lst.'.($lsttp == 'memo' || $lsttp == 'list' ? 'list' : 'webzine').'.html');
+	}
+
+	<div cond="$page_navigation" class="pn">
+		<a cond="$page != 1" href="{$oEntry->getUrl('document_srl','','comment_srl','','page',$page-1,'division',$division,'last_division',$last_division)}" accesskey="b" class="prev">{$lang->cmd_prev}</a>
+		<strong>{$page} / {$page_navigation->last_page}</strong>
+		<a cond="$page != $page_navigation->last_page" href="{$oEntry->getUrl('document_srl','','comment_srl','','page',$page+1,'division',$division,'last_division',$last_division)}" accesskey="n" class="next">{$lang->cmd_next}</a>
+		<a href="#beluxe" class="lic fr">Board DX</a>
+	</div>
+
+	<div class="sh">
+		<form action="{$oEntry->getUrl()}" method="get">
+			<input type="hidden" name="vid" value="{$vid}" />
+			<input type="hidden" name="mid" value="{$mid}" />
+			<input type="hidden" name="category" value="{$category}" />
+			<span class="tgbn"><a href="{$oEntry->getUrl('act','dispBoardTagList')}" title="{$lang->tag}">&nbsp;</a></span>
+			<select name="search_target">
+				<option loop="$ci=>$key,$val" cond="$val->search=='Y'" value="{$key}" selected="selected"|cond="$key==$search_target">{$val->name}</option>
+				<option cond="$search_target&&$ci[$search_target]->search!='Y'" value="{$search_target}" selected="selected">{Context::getLang($search_target)}</option>
+			</select>
+			<input type="text" name="search_keyword" value="{htmlspecialchars($search_keyword)}" title="{$lang->cmd_search}" />
+			<button type="submit" class="shbn" title="{$lang->cmd_search}">Search</button>
+		</form>
+	</div>
+
+	</block>
+</div>

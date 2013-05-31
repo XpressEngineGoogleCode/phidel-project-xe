@@ -1,0 +1,41 @@
+<include target="__header.html" />
+
+<div id="siBody">
+	<div cond="$is_cts" class="scHeader clearBar">
+		<include target="_etc.category.html" />
+	</div>
+	<div class="scContent clearBar">
+		{@
+			$is_btm_skp = $is_doc&&$mi->document_bottom_except_notice != 'N';
+			$notice_list = !$is_btm_skp&&($mi->notice_category!='Y'||!$is_cts||$category_srl)?$oThis->getNoticeList():array();
+			$best_list = !$is_btm_skp&&($mi->use_best=='Y'&&($mi->best_category!='Y'||!$is_cts||$category_srl))?$oThis->getBestList():array();
+
+			$oTemplate = &TemplateHandler::getInstance();
+			print $oTemplate->compile($tpl_path, '_lst.'.$lsttp.'.html');
+		}
+
+		<!--@if($is_doc&&$lsttp=='blog'&&$is_btlst=='P')-->
+			<include target="_etc.navigation.html" />
+		<!--@else-->
+			<include target="_etc.pagination.html" />
+		<!--@endif-->
+	</div>
+	<div class="scFooter clearBar">
+		<include target="_etc.search.html" />
+	</div>
+
+	<div cond="$us_modal" id="siModalWin" data-frame="siOframe" class="modal" style="display:none">
+		<div class="fg">
+			<fieldset></fieldset>
+		</div>
+	</div>
+
+	<div cond="$us_modal && ($lsttp=='blog'||$lsttp=='guest')" id="siModalCmtWin" data-frame="siCframe" style="display:none">
+		<div class="fg">
+			<fieldset></fieldset>
+		</div>
+	</div>
+
+</div>
+
+<include target="__footer.html" />

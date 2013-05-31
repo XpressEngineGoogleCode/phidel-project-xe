@@ -1,0 +1,249 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!--
+일본어 번역: 감로수
+영어 번역: 썬
+-->
+<lang>
+	<item name="skip_content">
+		<value xml:lang="ko"><![CDATA[본문 건너뛰기]]></value>
+		<value xml:lang="jp"><![CDATA[本文を飛ばす]]></value>
+		<value xml:lang="en"><![CDATA[Skip to content]]></value>
+	</item>
+	<item name="cmd_all_list">
+		<value xml:lang="ko"><![CDATA[모두]]></value>
+		<value xml:lang="jp"><![CDATA[全体]]></value>
+		<value xml:lang="en"><![CDATA[All]]></value>
+	</item>
+	<item name="new_document">
+		<value xml:lang="ko"><![CDATA[새로운 문서]]></value>
+		<value xml:lang="jp"><![CDATA[新しい文書]]></value>
+		<value xml:lang="en"><![CDATA[New document]]></value>
+	</item>
+	<item name="new_comment">
+		<value xml:lang="ko"><![CDATA[새로운 댓글]]></value>
+		<value xml:lang="jp"><![CDATA[新しいコメント]]></value>
+		<value xml:lang="en"><![CDATA[New comment]]></value>
+	</item>
+	<item name="document_write">
+		<value xml:lang="ko"><![CDATA[새 등록]]></value>
+		<value xml:lang="jp"><![CDATA[新しい登録]]></value>
+		<value xml:lang="en"><![CDATA[New registration]]></value>
+	</item>
+	<item name="comment_write">
+		<value xml:lang="ko"><![CDATA[입찰하기]]></value>
+		<value xml:lang="jp"><![CDATA[入札する]]></value>
+		<value xml:lang="en"><![CDATA[Bid]]></value>
+	</item>
+	<item name="star_column">
+		<value xml:lang="ko"><![CDATA[별점]]></value>
+		<value xml:lang="jp"><![CDATA[星数]]></value>
+		<value xml:lang="en"><![CDATA[Star]]></value>
+	</item>
+	<item name="short_readed_count">
+		<value xml:lang="ko"><![CDATA[조회]]></value>
+		<value xml:lang="jp"><![CDATA[閲覧]]></value>
+		<value xml:lang="en"><![CDATA[Read]]></value>
+	</item>
+	<item name="short_voted_count">
+		<value xml:lang="ko"><![CDATA[추천]]></value>
+		<value xml:lang="jp"><![CDATA[推薦]]></value>
+		<value xml:lang="en"><![CDATA[Vote]]></value>
+	</item>
+	<item name="short_blamed_count">
+		<value xml:lang="ko"><![CDATA[비추]]></value>
+		<value xml:lang="jp"><![CDATA[非推薦]]></value>
+		<value xml:lang="en"><![CDATA[Blame]]></value>
+	</item>
+	<item name="end_time">
+		<value xml:lang="ko"><![CDATA[입찰 종료시간]]></value>
+		<value xml:lang="jp"><![CDATA[入札終了]]></value>
+		<value xml:lang="en"><![CDATA[Bid End Time]]></value>
+	</item>
+	<item name="end_time_value">
+		<value xml:lang="ko"><![CDATA[%s시간 후]]></value>
+		<value xml:lang="jp"><![CDATA[%s時間後]]></value>
+		<value xml:lang="en"><![CDATA[%s Hours after]]></value>
+	</item>
+	<item name="remaining_time">
+		<value xml:lang="ko"><![CDATA[%s분 남았습니다.]]></value>
+		<value xml:lang="jp"><![CDATA[%s残り時間.]]></value>
+		<value xml:lang="en"><![CDATA[%s left Minutes.]]></value>
+	</item>
+	<item name="verification_waiting_time">
+		<value xml:lang="ko"><![CDATA[상대방의 거래 확인을 기다립니다]]></value>
+		<value xml:lang="jp"><![CDATA[相手の取り引き確認を待ちます]]></value>
+		<value xml:lang="en"><![CDATA[waitting for confirmation form bidder]]></value>
+	</item>
+	<item name="owner_info">
+		<value xml:lang="ko"><![CDATA[상대 정보: %s<br />전화 번호: %s<br />메일 주소: %s]]></value>
+		<value xml:lang="jp"><![CDATA[相手の情報: %s<br />電話番号: %s<br />メールアドレス: %s]]></value>
+		<value xml:lang="en"><![CDATA[owner info: %s<br />phone number: %s<br />mail address: %s]]></value>
+	</item>
+	<item name="phone_number">
+		<value xml:lang="ko"><![CDATA[전화 번호]]></value>
+		<value xml:lang="jp"><![CDATA[電話番号]]></value>
+		<value xml:lang="en"><![CDATA[Phone number]]></value>
+	</item>
+	<item name="start_point">
+		<value xml:lang="ko"><![CDATA[시작 포인트]]></value>
+		<value xml:lang="jp"><![CDATA[始めのポイント]]></value>
+		<value xml:lang="en"><![CDATA[Start point]]></value>
+	</item>
+	<item name="end_point">
+		<value xml:lang="ko"><![CDATA[즉구 포인트]]></value>
+		<value xml:lang="jp"><![CDATA[...ポイント]]></value>
+		<value xml:lang="en"><![CDATA[End point]]></value>
+	</item>
+	<item name="bidder">
+		<value xml:lang="ko"><![CDATA[입찰자]]></value>
+		<value xml:lang="jp"><![CDATA[入札者]]></value>
+		<value xml:lang="en"><![CDATA[Bidder]]></value>
+	</item>
+	<item name="end_bid">
+		<value xml:lang="ko"><![CDATA[입찰 종료]]></value>
+		<value xml:lang="jp"><![CDATA[入札終了]]></value>
+		<value xml:lang="en"><![CDATA[end bid]]></value>
+	</item>
+	<item name="bonus_pang_pang">
+		<value xml:lang="ko"><![CDATA[보너스 : %s포인트]]></value>
+		<value xml:lang="jp"><![CDATA[ボーナス : % sポイント]]></value>
+		<value xml:lang="en"><![CDATA[Bonus: %spoint]]></value>
+	</item>
+	<item name="my_point">
+		<value xml:lang="ko"><![CDATA[내 포인트: %s]]></value>
+		<value xml:lang="jp"><![CDATA[私のポイント: %s]]></value>
+		<value xml:lang="en"><![CDATA[My point: %s]]></value>
+	</item>
+	<item name="cmd_recover_point">
+		<value xml:lang="ko"><![CDATA[포인트 회수]]></value>
+		<value xml:lang="jp"><![CDATA[ポイント回収]]></value>
+		<value xml:lang="en"><![CDATA[point count]]></value>
+	</item>
+	<item name="cmd_transactions_verification">
+		<value xml:lang="ko"><![CDATA[거래 확인]]></value>
+		<value xml:lang="jp"><![CDATA[取り引き確認]]></value>
+		<value xml:lang="en"><![CDATA[transactions verification]]></value>
+	</item>
+	<item name="cmd_get_point">
+		<value xml:lang="ko"><![CDATA[포인트 가지기]]></value>
+		<value xml:lang="jp"><![CDATA[ポイント獲得]]></value>
+		<value xml:lang="en"><![CDATA[get pint]]></value>
+	</item>
+	<item name="cmd_cancel_auction">
+		<value xml:lang="ko"><![CDATA[경매 취소]]></value>
+		<value xml:lang="jp"><![CDATA[オークション取り消し]]></value>
+		<value xml:lang="en"><![CDATA[cancel auction]]></value>
+	</item>
+	<item name="confirm_cancel_auction">
+		<value xml:lang="ko"><![CDATA[경매를 취소하면 모든 포인트를 되돌립니다.\n이 기능은 거래에 문제가 있을때만 사용해 주세요.\n계속 하시겠습니까?]]></value>
+		<value xml:lang="jp"><![CDATA[オークションを取り消しし すべての ポイントを 戻します.\nこの 機能は 取引に 問題が あるときのみ使用ください.\n続けますか?]]></value>
+		<value xml:lang="en"><![CDATA[canceling auction will return points.\n please use only if there is an auction error.\n continue?]]></value>
+	</item>
+	<item name="confirm_download_point">
+		<value xml:lang="ko"><![CDATA[이 파일을 다운로드 하시려면 %s 포인트가 사용됩니다.\n계속 하시겠습니까? (단, 한번만 소모)]]></value>
+		<value xml:lang="jp"><![CDATA[この ファイルを ダウンロードするためには %s ポイントが使われます.\n続けますか? (단, 한번만 소모)]]></value>
+		<value xml:lang="en"><![CDATA[downloading this file will use %s points.\n continue? (used point once)]]></value>
+	</item>
+	<item name="confirm_declare">
+		<value xml:lang="ko"><![CDATA[%s에게 이유를 설명해주십시오.]]></value>
+		<value xml:lang="jp"><![CDATA[Please describe the reasons to %s.]]></value>
+		<value xml:lang="en"><![CDATA[Please describe the reasons to %s.]]></value>
+	</item>
+	<item name="about_use_point">
+		<value xml:lang="ko"><![CDATA[내 포인트를 걸고 사용자에게 포인트의 %s씩 받을 수 있습니다. (수정 불가)]]></value>
+		<value xml:lang="jp"><![CDATA[私のポイントをかけて 使用者に ポイントの %sづつ貰うことができます. (修正不可)]]></value>
+		<value xml:lang="en"><![CDATA[use your points to get user's %s points. (No modify)]]></value>
+	</item>
+	<item name="auction_status" type="array">
+		<item name="0">
+			<value xml:lang="ko"><![CDATA[진행]]></value>
+			<value xml:lang="jp"><![CDATA[進行]]></value>
+			<value xml:lang="en"><![CDATA[process]]></value>
+		</item>
+		<item name="1">
+			<value xml:lang="ko"><![CDATA[거래]]></value>
+			<value xml:lang="jp"><![CDATA[取引]]></value>
+			<value xml:lang="en"><![CDATA[transaction]]></value>
+		</item>
+		<item name="2">
+			<value xml:lang="ko"><![CDATA[승인]]></value>
+			<value xml:lang="jp"><![CDATA[承認]]></value>
+			<value xml:lang="en"><![CDATA[approval]]></value>
+		</item>
+		<item name="3">
+			<value xml:lang="ko"><![CDATA[완료]]></value>
+			<value xml:lang="jp"><![CDATA[完了]]></value>
+			<value xml:lang="en"><![CDATA[complete]]></value>
+		</item>
+		<item name="4">
+			<value xml:lang="ko"><![CDATA[취소]]></value>
+			<value xml:lang="jp"><![CDATA[取り消し]]></value>
+			<value xml:lang="en"><![CDATA[canceled]]></value>
+		</item>
+	</item>
+	<item name="msg_auction_canceled">
+		<value xml:lang="ko"><![CDATA[경매가 취소되었습니다.]]></value>
+		<value xml:lang="jp"><![CDATA[オークションが取り消しされました.]]></value>
+		<value xml:lang="en"><![CDATA[auction canceled]]></value>
+	</item>
+	<item name="msg_auction_point_reduced">
+		<value xml:lang="ko"><![CDATA[%s 포인트가 감소되었습니다.<br />관련 url: %s]]></value>
+		<value xml:lang="jp"><![CDATA[%s ポイントが減少されました.<br />関連 url: %s]]></value>
+		<value xml:lang="en"><![CDATA[%s reduced point<br />related url: %s]]></value>
+	</item>
+	<item name="msg_auction_point_recovery">
+		<value xml:lang="ko"><![CDATA[%s 포인트를 돌려받으세요.<br />관련 url: %s]]></value>
+		<value xml:lang="jp"><![CDATA[%s ポイントを返して貰ってください.<br />関連 url: %s]]></value>
+		<value xml:lang="en"><![CDATA[%s recovery point<br />related url: %s]]></value>
+	</item>
+	<item name="msg_auctioned_off">
+		<value xml:lang="ko"><![CDATA[경매에 낙찰되었습니다.]]></value>
+		<value xml:lang="jp"><![CDATA[オークションに落札されました.]]></value>
+		<value xml:lang="en"><![CDATA[auction finished.]]></value>
+	</item>
+	<item name="msg_auction_send_phone">
+		<value xml:lang="ko"><![CDATA[%s 로 연락을 취해 거래를 확인하세요.<br />관련 url: %s]]></value>
+		<value xml:lang="jp"><![CDATA[%s に連絡を取って取り引きを確認してください.<br />関連 url: %s]]></value>
+		<value xml:lang="en"><![CDATA[%s contact to confirm transaction.<br />related url: %s]]></value>
+	</item>
+	<item name="msg_transactions_verification">
+		<value xml:lang="ko"><![CDATA[거래가 확인되었습니다.<br />관련 url: %s]]></value>
+		<value xml:lang="jp"><![CDATA[取り引きが確認されました.<br />関連 url: %s]]></value>
+		<value xml:lang="en"><![CDATA[transaction verified.<br />related url: %s]]></value>
+	</item>
+	<item name="about_phone_number">
+		<value xml:lang="ko"><![CDATA[전화 번호는 경매 낙찰자에게만 공개됩니다.]]></value>
+		<value xml:lang="jp"><![CDATA[電話番号は落札者のみ公開されます.]]></value>
+		<value xml:lang="en"><![CDATA[phone number is given only to winner of the auction.]]></value>
+	</item>
+	<item name="about_cmd_recover_point">
+		<value xml:lang="ko"><![CDATA[재 입찰을 하시려면 포인트를 회수해 주세요 .<br />단, 포인트 회수시 %s포인트가 소모됩니다.]]></value>
+		<value xml:lang="jp"><![CDATA[再入札をするためにはポイントを回収してください .<br />ただし, ポイント回収の時 %sポイントが消耗されます.]]></value>
+		<value xml:lang="en"><![CDATA[To make a point, please recover and re-bid.<br />when point recover %s when point vanish.]]></value>
+	</item>
+	<item name="about_end_recover_point">
+		<value xml:lang="ko"><![CDATA[종료된 경매입니다. 포인트를 회수해 주세요 .<br />단, 포인트 회수시 %s포인트가 소모됩니다.]]></value>
+		<value xml:lang="jp"><![CDATA[終了されたオークションです. ポイントを回収してください .<br />ただし, ポイント回収の時 %sポイントが消耗されます.]]></value>
+		<value xml:lang="en"><![CDATA[auction is finnished. Recover point.<br /> when recover point %s wil be point vanish.]]></value>
+	</item>
+	<item name="about_comment_write">
+		<value xml:lang="ko"><![CDATA[입찰은 비공개로 진행되면 낙찰에 실패하면 포인트를 회수할 수 있습니다.<br />단, 포인트 회수시 %s포인트가 소모됩니다.]]></value>
+		<value xml:lang="jp"><![CDATA[入札は非公開に進行されて落札に失敗すればポイントを回収することができます.<br />ただし, ポイント回収の時 %sポイントが消耗されます.]]></value>
+		<value xml:lang="en"><![CDATA[after private bids closed, if the bid fails, you can reclaim points.<br />when point recover %s will be point vanish.]]></value>
+	</item>
+	<item name="invalid_auction_number">
+		<value xml:lang="ko"><![CDATA[첫번째 숫자는 1이상 이여야합니다.]]></value>
+		<value xml:lang="jp"><![CDATA[一番目数字は 1以上ではなければなりません.]]></value>
+		<value xml:lang="en"><![CDATA[첫번째 숫자는 1이상 이여야합니다.]]></value>
+	</item>
+	<item name="invalid_phone_number">
+		<value xml:lang="ko"><![CDATA[규칙이 다릅니다. 정확히 적어주세요.\n예: 000-123-4567]]></value>
+		<value xml:lang="jp"><![CDATA[形式に合ってません. 正確に書いてください.\n例: 000-123-4567]]></value>
+		<value xml:lang="en"><![CDATA[규칙이 다릅니다. 정확히 적어주세요.\n예: 000-123-4567]]></value>
+	</item>
+	<item name="nav_caption">
+		<value xml:lang="ko"><![CDATA["%s" 카테고리의 다른 글]]></value>
+		<value xml:lang="jp"><![CDATA[% s" カテゴリーの他の文書]]></value>
+		<value xml:lang="en"><![CDATA["%s" 카테고리의 다른 글]]></value>
+	</item>
+</lang>
