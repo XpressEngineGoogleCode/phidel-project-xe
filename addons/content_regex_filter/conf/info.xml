@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<addon version="0.2">
+	<title>문서 저장 정규식 필터</title>
+	<description>
+		문서 저장시 불필요한 텍스트를 찾아 지우는 에드온입니다.
+	</description>
+	<version>0.1</version>
+	<date>2012-02-17</date>
+
+	<author email_address="phidel@foxb.kr" link="http://foxb.kr/">
+		<name>phiDel</name>
+	</author>
+	<license>GPL</license>
+
+	<extra_vars>
+		<var name="is_document" type="select" default="Y">
+			<title>문서</title>
+			<options value="Y">
+				<title>사용</title>
+			</options>
+			<options value="N">
+				<title>사용 안함</title>
+			</options>
+		</var>
+		<var name="is_comment" type="select" default="Y">
+			<title>댓글</title>
+			<options value="Y">
+				<title>사용</title>
+			</options>
+			<options value="N">
+				<title>사용 안함</title>
+			</options>
+		</var>
+		<var name="user_filter" type="textarea" default="">
+			<title>필터 정규식</title>
+			<description>이곳에 정규식을 적어 문서에서 제외할 수 있습니다.
+			엔터(Enter)를 이용하여 복수 등록도 가능합니다.
+
+			예제:
+			array('pattern', 'replacement')
+
+			1. 태그에 style 를 찾아 지우는 정규식
+			array('/(&lt;[^&gt;].+?)(style *= *[&quot;]?[^&gt;&quot;]*[&quot;])/i', '$1')
+			2. script, style 태그를 지우는 정규식
+			array('/&lt;(script|style)[^&gt;]*&gt;(.*?&lt;\/(script|style)&gt;)?/is', '')</description>
+		</var>
+	</extra_vars>
+</addon>
