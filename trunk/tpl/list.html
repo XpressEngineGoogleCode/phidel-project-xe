@@ -3,9 +3,7 @@
 <div class="table even">
 
 	<table width="100%" border="1" cellspacing="0">
-		<caption>
-			<div>{$module_category_srl>0?$module_category[$module_category_srl]->title:$lang->total} ({number_format($total_count)})</div>
-		</caption>
+		<caption>{$module_category_srl>0?$module_category[$module_category_srl]->title:$lang->total} ({number_format($total_count)}), Page: {number_format($page)}/{number_format($total_page)}</caption>
 		<thead>
 			<tr>
 				<th scope="col" class="select_th" style="padding:0 5px;vertical-align:middle">
@@ -56,7 +54,7 @@
 				<td class="nowrap">{$val->use_mobile=='Y'?$lang->use:$lang->notuse}</td>
 				<td class="module_regdate nowrap">{zdate($val->regdate,"Y-m-d")}</td>
 				<td class="nowrap">
-					<a href="#deleteForm" title="{$lang->cmd_delete}" class="modalAnchor" data-val="{$val->mid}|@|{$val->module_srl}"><span>{$lang->cmd_delete}</span></a>
+					<a href="#manageDeleteModule" title="{$lang->cmd_delete}" class="modalAnchor" data-val="{$val->mid}|@|{$val->module_srl}"><span>{$lang->cmd_delete}</span></a>
 					<a href="#doBeluxeSettingCopy" title="{$lang->cmd_copy}" data-val="{$val->mid}|@|{$val->module_srl}"><span>{$lang->cmd_copy}</span></a>
 				</td>
 				<td><input type="checkbox" name="cart" value="{$val->mid}|@|{$val->module_srl}" /></td>
@@ -106,43 +104,46 @@
 	</form>
 </div>
 
-<div class="modal" id="deleteForm">
-	<form ruleset="deleteBeluxe" class="fg form" action="./" method="post" id="deleteFo">
-	<input cond="$module=='admin'" type="hidden" name="module" value="{$module}" />
-	<input type="hidden" name="act" value="procBeluxeAdminDelete" />
-	<input type="hidden" name="page" value="{$page}" />
-	<input type="hidden" name="module_srl" value="" />
-
-	<h2 class="h2">{$lang->confirm_delete}</h2>
-	<div class="table even">
-		<table width="100%" border="1" cellspacing="0">
-			<tr>
-				<th scope="row" style="width: 180px">{$lang->module_category}</th>
-				<td class="module_category wide">&nbsp;</td>
-			</tr>
-			<tr>
-				<th scope="row" style="width: 180px">{$lang->mid}</th>
-				<td class="module_mid wide">&nbsp;</td>
-			</tr>
-			<tr>
-				<th scope="row" style="width: 180px">{$lang->browser_title}</th>
-				<td class="module_title">&nbsp;</td>
-			</tr>
-			<tr>
-				<th scope="row" style="width: 180px">{$lang->regdate}</th>
-				<td class="module_regdate wide">&nbsp;</td>
-			</tr>
-		</table>
+<section id="manageDeleteModule" class="x_modal x" style="display:none">
+	<div class="x_modal-header">
+		<h1>{$lang->confirm_delete}</h1>
 	</div>
-
-	<div class="x_clearfix btnArea">
+	<div class="x_modal-body">
+		<form ruleset="deleteBeluxe" action="./" method="post" id="deleteFo">
+		<input cond="$module=='admin'" type="hidden" name="module" value="{$module}" />
+		<input type="hidden" name="act" value="procBeluxeAdminDelete" />
+		<input type="hidden" name="page" value="{$page}" />
+		<input type="hidden" name="module_srl" value="" />
+		<div class="table even">
+			<table width="100%" border="1" cellspacing="0">
+				<col width="200px" />
+				<tr>
+					<th scope="row">{$lang->module_category}</th>
+					<td class="module_category wide">&nbsp;</td>
+				</tr>
+				<tr>
+					<th scope="row">{$lang->mid}</th>
+					<td class="module_mid wide">&nbsp;</td>
+				</tr>
+				<tr>
+					<th scope="row">{$lang->browser_title}</th>
+					<td class="module_title">&nbsp;</td>
+				</tr>
+				<tr>
+					<th scope="row">{$lang->regdate}</th>
+					<td class="module_regdate wide">&nbsp;</td>
+				</tr>
+			</table>
+		</div>
+		</form>
+	</div>
+	<div class="x_modal-footer">
 		<span class="x_pull-left"><strong class="colRed">Warning! </strong> {$lang->msg_delete_this_module}</span>
 		<span class="x_pull-right">
 			<input class="x_btn x_btn-primary" type="submit" value="{$lang->cmd_delete}" />
-			<button class="x_btn" type="button" title="Close this layer" onclick="jQuery('#deleteForm').data('anchor').trigger('close.mw')">{$lang->cmd_back}</button>
+			<button type="button" class="x_btn" data-hide="#manageSelectedModule">{$lang->cmd_close}</button>
 		</span>
 	</div>
-	</form>
-</div>
+</section>
 
 <include target="footer.html" />

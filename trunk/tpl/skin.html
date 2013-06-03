@@ -17,7 +17,7 @@
 				<block loop="$skin_info->author=>$author">
 					{$author->name}
 					<block cond="$author->homepage || $author->email_address">
-						(<a href="{$author->homepage}" onclick="window.open(this.href);return false;" cond="$author->homepage">{$author->homepage}</a>
+						(<a href="{$author->homepage}" target="_blank" cond="$author->homepage">{$author->homepage}</a>
 						<block cond="$author->homepage && $author->email_address">, </block>
 						<a href="mailto:{$author->email_address}" cond="$author->email_address">{$author->email_address}</a>)
 					</block><br />
