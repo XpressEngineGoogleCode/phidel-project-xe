@@ -64,6 +64,14 @@
 	<section cond="!$m_allset_targets" class="section">
 		<h1>{$lang->module}</h1>
 		<block cond="$module=='admin'">
+			<div cond="!$m_copy_target" class="x_control-group">
+				<label class="x_control-label"><em style="color:red">*</em> {$lang->mid}</label>
+				<div class="x_controls">
+					<input type="text" name="module_mid" required value="{$module_info->mid}" />
+					<a href="#about_mid" class="x_icon-question-sign" data-toggle>{$lang->help}</a>
+					<p class="x_help-block" id="about_mid" hidden>{$lang->about_mid}</p>
+				</div>
+			</div>
 			<div class="x_control-group {$m_copy_target?'x_info':''}">
 				<label class="x_control-label">{$lang->module_category}</label>
 				<div class="x_controls">
@@ -73,14 +81,6 @@
 					</select>
 					<a href="#about_module_category" class="x_icon-question-sign" data-toggle>{$lang->help}</a>
 					<p class="x_help-block" id="about_module_category" hidden>{$lang->about_module_category}</p>
-				</div>
-			</div>
-			<div cond="!$m_copy_target" class="x_control-group">
-				<label class="x_control-label"><em style="color:red">*</em> {$lang->mid}</label>
-				<div class="x_controls">
-					<input type="text" name="module_mid" required value="{$module_info->mid}" />
-					<a href="#about_mid" class="x_icon-question-sign" data-toggle>{$lang->help}</a>
-					<p class="x_help-block" id="about_mid" hidden>{$lang->about_mid}</p>
 				</div>
 			</div>
 		</block>

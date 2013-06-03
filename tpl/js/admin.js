@@ -337,9 +337,9 @@ jQuery(function($)
 		return false;
 	});
 
-	$('a.modalAnchor[href=#deleteForm]').bind('before-open.mw',function(e)
+	$('a.modalAnchor[href=#manageDeleteModule]').bind('before-open.mw',function(e)
 	{
-		var $frm = $('#deleteForm'),
+		var $frm = $('#manageDeleteModule'),
 			$tr = $(this).closest('tr'),
 			aVal = $(this).attr('data-val').split('|@|');
 
