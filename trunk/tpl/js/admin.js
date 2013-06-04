@@ -14,14 +14,14 @@ jQuery(function($)
 {
 	var sjAdmTempKey = -1;
 
+/*
+ * 	구버전용 언어 코드 찾기 (xe.1.5.x)
 	function open_find_langcode(tar)
 	{
 		if(tar == undefined || !tar) return false;
 		var url = request_uri.setQuery('module','module').setQuery('act','dispModuleAdminLangcode').setQuery('target',tar);
-
 		// ie error prevention
 		var iefix = tar.replace(/-/gi,'_');
-
 		try {
 			if(typeof(winopen_list[iefix]) != 'undefined' && winopen_list[iefix]) {
 				winopen_list[iefix].close();
@@ -29,60 +29,60 @@ jQuery(function($)
 			}
 		} catch(e) {
 		}
-
 		var win = window.open(url, iefix, "width=650,height=500,scrollbars=yes,resizable=yes,toolbars=no");
 		winopen_list[iefix] = win;
-
 		// ie not working
 		//$(win).unload(function() {$('#' + tar, parent.document).focus();});
-
 		var timer = setInterval(function() {
 			if(win != undefined && win.closed) {
 				clearInterval(timer);
 				$('#' + tar).focus();
 			}
 		}, 500);
-
 		return false;
 	}
+*/
 
-	$.fn.bdxSiteMapinit = function(){
+	$.fn.bdxSiteMapinit = function()
+	{
+		var $this = $(this);
 
-		$('form.siteMap', this).delegate('li:not(.placeholder)', {'mousedown.st' : function(event) {
-			if($(event.target).is('em,.jPicker .Icon span.Image,span.x_input-append a.modalAnchor,span.x_input-append a.modalAnchor i,span.x_input-append button.remover,span.x_input-append button.remover i')) {
+		$('form.siteMap', $this).delegate('li:not(.placeholder)', {'mousedown.st' : function(event) {
+			if($(event.target).is('.side .cbSelect,span.x_input-append *')) {
 				event['which'] = 0;
 			}
 			return;
 		}});
 
-		$('form.siteMap', this).delegate('li:not(.placeholder)', 'dropped.st', function() {
-			var $this = $(this), $pkey, is_child;
+		$('form.siteMap', $this).delegate('li:not(.placeholder)', 'dropped.st', function() {
+			var $th = $(this), $pkey, is_child;
 
-			$pkey = $this.find('>input._parent_key');
-			is_child = !!$this.parent('ul').parent('li').length;
+			$pkey = $th.find('>input._parent_key');
+			is_child = !!$th.parent('ul').parent('li').length;
 
 			if(is_child) {
-				$pkey.val($this.parent('ul').parent('li').find('>input._item_key').val());
+				$pkey.val($th.parent('ul').parent('li').find('>input._item_key').val());
 			} else {
 				$pkey.val('0');
 			}
 		});
 
-		$('a[href=#addMenu]', this).click(function() {
-			var $li = $(addSitemapMenuSample);
-			$li.find('>input._item_key').val(sjAdmTempKey--);
-			$li.find('>input._item_title').attr('id', 'cate_title'+sjAdmTempKey);
-			$li.find('>span.side>label>._item_color').attr('data-target', 'cate_color'+sjAdmTempKey).parent().attr('id', 'cate_color'+sjAdmTempKey);
-			$('.lang_code', $li).xeApplyMultilingualUI();
-			//$('.lang_code:eq(1)', $li).focus(function() {
-			//	var $_ph = $(this).parent();
-			//	$(this).css('width', ($_ph.parent().width() - (parseInt($_ph.parent().css('text-indent'))||0) - $_ph.next('.side').width() - 100) + 'px');
-			//}).blur(function() {$(this).css('width', '');});
-			$li.appendTo($('#nav_category', $(this).closest('form'))).bdxSiteMapinit();
+		$('a[href=#addMenu]', $this).click(function()
+		{
+			var $ul = $('ul#nav_category', $this);
+			$ul.find('._template').clone(true)
+				.removeClass('_template')
+				.find('input,select').removeAttr('disabled').end()
+				.find('label').removeAttr('for','').end()
+				.find('label>input').removeAttr('id','').end()
+				.find('input._item_key').val(sjAdmTempKey--).end()
+				.show()
+				.appendTo($ul)
+				.find('._lang_code').xeApplyMultilingualUI();
 			return false;
 		});
 
-		$('a[href=#delete]', this).click(function() {
+		$('a[href=#delete]', $this).click(function() {
 			if(!confirm(xe.lang.confirm_delete)) return false;
 
 			var module_srl = $(this).closest('form').find('>input[name=module_srl]').val(),
@@ -98,16 +98,16 @@ jQuery(function($)
 			return false;
 		});
 
-		$('.cbSelect', this).click(function() {
-			var $this = $(this),
-				$dl = $this.data('dl');
+		$('.cbSelect', $this).click(function() {
+			var $th = $(this),
+				$dl = $th.data('dl');
 
 				if($dl == undefined)
 				{
-					$dl = $('dl', $this);
-					$dl.data('type', $this.attr('data-type'));
-					$this.data('dl', $dl);
-					oidx = $this.attr('data-index');
+					$dl = $('dl', $th);
+					$dl.data('type', $th.attr('data-type'));
+					$th.data('dl', $dl);
+					oidx = $th.attr('data-index');
 
 					$dl.bind('close.dl', function(){
 						if($dl.data('type')!='array'&&$dl.data('type')!='panel') return;
@@ -121,26 +121,18 @@ jQuery(function($)
 							$('select', $dl).each(function(){ins[idx++] = $(this).val();});
 							$('input[type=text][id!=item_color]', $dl).each(function(){ins[idx++] = $(this).val();});
 							$('input[type=text][id=item_color]:eq(0)', $dl).each(function(){
-								var col = $(this).val() || '', isc = col && col !='transparent',
-									tid = $('._item_color', $this).attr('data-target') || '';
-								$('._item_color', $this).val(col);
-								if(tid){
-									$('#'+tid).css({
-										'border':isc ? ('2px solid ' + col) : '',
-										'border-left-width':isc ? '1px' : '',
-										'border-right-width':isc ? '1px' : ''
-									});
-								}
+								var col = $(this).val() || '', isc = col && col !='transparent';
+								$('._item_color', $th).val(col);
+								$th.css('border', isc ? ('1px solid ' + col) : '');
 							});
 						}
-						var val1 = $('._value', $this).val(),
-							val2 = ins.join('|@|');
-						$('._value', $this).val(val2);
-						if(val1 != val2) $('._title', $this).css('color', ins.length?'red':'');
+						var val1 = $('._value', $th).val(), val2 = ins.join('|@|');
+						$('._value', $th).val(val2);
+						if(val1 != val2) $('._title', $th).css('color', ins.length?'red':'');
 					});
 
 					// event 연결은 처음에 한번만 해야지 많이 하면 Overflow
-					//$('._title', $this).click(function(){$this.click();});
+					//$('._title', $th).click(function(){$th.click();});
 
 					$(document).mousedown(function(event){
 						var target = event.target;
@@ -155,7 +147,7 @@ jQuery(function($)
 						$dl.html(addSitemapMenuSampleOption[oidx]);
 						if($dl.attr('default')=='default') $('dt.defi,option.defi',$dl).remove();
 						if(oidx=='1') {
-							var col = $('._item_color', $this).val() || '', tval = $('._value', $this).val();
+							var col = $('._item_color', $th).val() || '', tval = $('._value', $th).val();
 							$('input.color-indicator', $dl).val(col).xe_colorpicker();
 							tval = tval.split('|@|');
 							var objs = $('input[type=checkbox],select,input[type=text][id!=item_color]', $dl);
@@ -180,9 +172,9 @@ jQuery(function($)
 							$dl.trigger('close.dl');
 							$dl.hide();
 						} else {
-							$('._title', $this).text($dt.text());
-							$('._value', $this).val($dt.attr('data-val'));
-							$('._option', $this).val($dt.attr('data-opt'));
+							$('._title', $th).text($dt.text());
+							$('._value', $th).val($dt.attr('data-val'));
+							$('._option', $th).val($dt.attr('data-opt'));
 							$dl.hide();
 						}
 					});
@@ -195,15 +187,15 @@ jQuery(function($)
 				}
 
 				var $ch = $('#siteMapFrame');
-				$dl.css('left',$this.offset().left + 'px');
+				$dl.css('left',$th.offset().left + 'px');
 
 				if(
-					(($ch.offset().top + $ch.height()) < ($this.offset().top + $dl.height() + 16))
-					&& ($dl.height() < ($this.offset().top - $ch.offset().top))
+					(($ch.offset().top + $ch.height()) < ($th.offset().top + $dl.height() + 16))
+					&& ($dl.height() < ($th.offset().top - $ch.offset().top))
 				)
-					$dl.css('top',$this.offset().top - $dl.height() - 16 + 'px');
+					$dl.css('top',$th.offset().top - $dl.height() - 16 + 'px');
 				else
-					$dl.css('top',$this.offset().top + 9 + 'px');
+					$dl.css('top',$th.offset().top + 9 + 'px');
 
 				$dl.show();
 
@@ -211,7 +203,62 @@ jQuery(function($)
 		});
 	};
 
-	$.fn.bdxColumninit = function(){
+	$.fn.bdxExtraKeyinit = function()
+	{
+		var $this = $(this);
+
+		$this.submit(function()
+		{
+			var $eids = $('input._extra_eid', $this);
+			for(var i=0, c=$eids.length; i<c; i++)
+			{
+				var sv = $($eids.get(i)).val().trim(),
+					patt = /^[^a-z]|[^a-z0-9_]+$/g;
+				if(sv == undefined || patt.test(sv))
+				{
+					alert(xe.lang.msg_invalid_eid);
+					$($eids.get(i)).focus();
+					return false;
+				}
+			}
+			return true;
+		});
+
+		$('a[href=#addMenu]', $this).click(function()
+		{
+			var $tbody = $('._extraList tbody', $this);
+			$tbody.find('._template').clone(true)
+				.removeClass('_template')
+				.find('input,select').removeAttr('disabled').end()
+				.find('label').removeAttr('for', '').end()
+				.find('input._extra_option').removeAttr('id', '').end()
+				.show()
+				.appendTo($tbody)
+				.find('._lang_code').xeApplyMultilingualUI();
+			return false;
+		});
+
+		$('input:checkbox._extra_option', $this).click(function()
+		{
+			$('input:hidden#extra_option', $(this).closest('div.wrap')).val($(this).is(':checked')?'Y':'N');
+		});
+
+		$('a[href=#delete]', $this).click(function()
+		{
+			if(!confirm(xe.lang.confirm_delete)) return false;
+			var module_srl = $(this).closest('form').find('>input[name=module_srl]').val(),
+				extra_idx = $(this).closest('.wrap').find('>input._extra_idx').val(),
+				params = {'module_srl':module_srl,'extra_idx':extra_idx},
+				cateFuncDel = 'proc' + (__XEFM_NAME__).ucfirst() + 'AdminDeleteExtraKey';
+			if(extra_idx != undefined && extra_idx !== 0)
+				exec_xml(__XEFM_NAME__, cateFuncDel, params, completeCallModuleAction);
+			else $(this).closest('tr').remove();
+			return false;
+		});
+	};
+
+	$.fn.bdxColumninit = function()
+	{
 		$('input:checkbox.column_option', this).click(function()
 		{
 			var $par = $(this).closest('div.wrap'),
@@ -223,59 +270,14 @@ jQuery(function($)
 		});
 	};
 
-	$.fn.bdxExtraKeyinit = function(){
-		var $this = $(this);
-
-		$this.submit(function(){
-			var $eids = $('input._extra_eid', $this);
-			for(var i=0, c=$eids.length; i<c; i++){
-				var sv = $($eids.get(i)).val().trim(),
-					patt = /^[^a-z]|[^a-z0-9_]+$/g;
-				if(sv == undefined || patt.test(sv)){
-					alert(xe.lang.msg_invalid_eid);
-					$($eids.get(i)).focus();
-					return false;
-				}
-			}
-			return true;
-		});
-
-		$('input:checkbox.extra_option', $this).click(function(){
-			var $par = $(this).closest('div.wrap'),
-				option = new Array();
-			option[0] = $('input:checkbox#is_required', $par).is(':checked')?'Y':'N';
-			$('input:hidden#extra_option', $par).val(option.join('|@|'));
-		});
-
-		$('a[href=#addMenu]', $this).click(function() {
-			var $tr = $(addExtraKeysSample);
-			$('.lang_code', $tr).xeApplyMultilingualUI();
-			$tr.appendTo($('#extrakey_list .lined:first', $(this).closest('form'))).bdxExtraKeyinit();
-			return false;
-		});
-
-		$('a[href=#delete]', $this).click(function() {
-			if(!confirm(xe.lang.confirm_delete)) return false;
-
-			var module_srl = $(this).closest('form').find('>input[name=module_srl]').val(),
-				extra_idx = $(this).closest('.wrap').find('>input._extra_idx').val(),
-				params = {'module_srl':module_srl,'extra_idx':extra_idx},
-				cateFuncDel = 'proc' + (__XEFM_NAME__).ucfirst() + 'AdminDeleteExtraKey';
-
-			if(extra_idx != undefined && extra_idx !== 0){
-				exec_xml(__XEFM_NAME__, cateFuncDel, params, completeCallModuleAction);
-			}else{
-				$(this).closest('tr').remove();
-			}
-			return false;
-		});
-	};
-
-	$.fn.bdxInsertinit = function(){
+	$.fn.bdxInsertinit = function()
+	{
 		var f = this;
 
-		$.fn.bdxDfTypeSelect = function(){
-			$(this).change(function() {
+		$.fn.bdxDfTypeSelect = function()
+		{
+			$(this).change(function()
+			{
 				var def = $(this).attr('data-default') || '', ots= ($("option:selected", this).attr('data-option') || '').split('|@|');
 				if(ots.length==5)
 				{

@@ -1,13 +1,9 @@
 <include target="header.html" />
 
-<div cond="$m_allset_targets||$m_copy_target" class="message update">
-	<p>{$m_copy_target ? $lang->about_setting_copy : $lang->about_all_setting}<br />{$lang->target}: {$m_copy_target ? $m_copy_target : $m_allset_targets}</p>
+<div cond="($m_allset_targets||$m_copy_target)||count($module_backup_options)" class="message update">
+	<p cond="$m_allset_targets||$m_copy_target">{$m_copy_target ? $lang->about_setting_copy : $lang->about_all_setting}<br />{$lang->target}: {$m_copy_target ? $m_copy_target : $m_allset_targets}</p>
+	<p cond="count($module_backup_options)">{$lang->msg_module_backup_options}</p>
 </div>
-
-<div cond="count($module_backup_options)" class="message update">
-	<p>{$lang->msg_module_backup_options}</p>
-</div>
-
 
 <form ruleset="insertBeluxe" action="./" method="post" enctype="multipart/form-data" class="x_form-horizontal" id="insertFrame">
 <input cond="$module=='admin'" type="hidden" name="module" value="{$module}" />
@@ -20,20 +16,36 @@
 <input type="hidden" name="use_lock_owner_comment" value="N" />
 <input cond="$is_poped" type="hidden" name="is_poped" value="1" />
 
+<div class="{$is_poped?'x_modal-body':''}">
+
 	<section cond="$m_copy_target" class="section">
+		<h1>{$lang->module}</h1>
 		<div class="x_control-group">
 			<label class="x_control-label"><em style="color:red">*</em> {$lang->mid}</label>
-			<div class="x_controls" style="border:1px solid red;padding:3px">
+			<div class="x_controls opt_bks">
 				<input type="text" name="module_mid" value="" />
+				<a href="#about_mid" class="x_icon-question-sign" data-toggle>{$lang->help}</a>
+				<p class="x_help-block" id="about_mid" hidden>{$lang->about_mid}</p>
 			</div>
-			<p class="x_help-block">{$lang->about_mid}</p>
+		</div>
+		<div class="x_control-group">
+			<label class="x_control-label">{$lang->module_category}</label>
+			<div class="x_controls opt_bks">
+				<select name="module_category_srl">
+					<option value="0">{$lang->notuse}</option>
+					<option loop="$module_category => $key, $val" value="{$key}" selected="selected"|cond="$module_info->module_category_srl == $key">{$val->title}</option>
+				</select>
+				<a href="#about_module_category" class="x_icon-question-sign" data-toggle>{$lang->help}</a>
+				<p class="x_help-block" id="about_module_category" hidden>{$lang->about_module_category}</p>
+			</div>
 		</div>
 		<div class="x_control-group">
 			<label class="x_control-label">{$lang->browser_title}</label>
-			<div class="x_controls" style="border:1px solid red;padding:3px">
+			<div class="x_controls opt_bks">
 				<input type="text" class="lang_code" name="browser_title" value="<!--@if(strpos($module_info->browser_title, '$user_lang->') === false)-->{$module_info->browser_title}<!--@else-->{htmlspecialchars($module_info->browser_title)}<!--@end-->" />
+				<a href="#about_browser_title" class="x_icon-question-sign" data-toggle>{$lang->help}</a>
+				<p class="x_help-block" id="about_browser_title" hidden>{$lang->about_browser_title}</p>
 			</div>
-			<p class="x_help-block">{$lang->about_browser_title}</p>
 		</div>
 
 		<input type="hidden" name="target_module_srl" value="{$module_info->module_srl}" />
@@ -61,10 +73,10 @@
 		<input type="hidden" name="target_module_mids" value="{$m_allset_targets}" />
 	</block>
 
-	<section cond="!$m_allset_targets" class="section">
+	<section cond="!$m_allset_targets&&!$m_copy_target" class="section">
 		<h1>{$lang->module}</h1>
 		<block cond="$module=='admin'">
-			<div cond="!$m_copy_target" class="x_control-group">
+			<div class="x_control-group">
 				<label class="x_control-label"><em style="color:red">*</em> {$lang->mid}</label>
 				<div class="x_controls">
 					<input type="text" name="module_mid" required value="{$module_info->mid}" />
@@ -84,7 +96,7 @@
 				</div>
 			</div>
 		</block>
-		<div cond="!$m_copy_target" class="x_control-group">
+		<div class="x_control-group">
 			<label class="x_control-label">{$lang->browser_title}</label>
 			<div class="x_controls {$compulsory_options['browser_title']?'opt_cps':''} {$module_backup_options['browser_title']?'opt_bks':''}">
 				<input type="text" class="lang_code" name="browser_title" value="<!--@if(strpos($module_info->browser_title, '$user_lang->') === false)-->{$module_info->browser_title}<!--@else-->{htmlspecialchars($module_info->browser_title)}<!--@end-->" />
@@ -94,7 +106,7 @@
 		</div>
 	</section>
 
-	<section class="section">
+	<section class="section {$m_copy_target?'collapsed':''}">
 		<h1>{$lang->layout}</h1>
 		<div class="x_control-group {$m_copy_target?'x_info':''}">
 			<label class="x_control-label">{$lang->layout}</label>
@@ -182,17 +194,17 @@
 			</div>
 			<div class="x_controls">
 				<label class="x_inline" style="width:70px" for="id_default_list_count">{$lang->list_count}:</label>
-				<label class="x_inline" style="width:70px" for="id_default_clist_count">{$lang->comment_count}:</label>
 				<label class="x_inline" style="width:70px" for="id_default_page_count">{$lang->page_count}:</label>
+				<label class="x_inline" style="width:70px" for="id_default_clist_count">{$lang->comment_count}:</label>
 				<br />
 				<input name="default_list_count" id="id_default_list_count" type="number" value="{(int)$t_dftype->list_count}" maxlength="10" style="width:50px" />
-				<input name="default_clist_count" id="id_default_clist_count" type="number" value="{(int)$t_dftype->clist_count}" maxlength="10" style="width:50px;margin-left:22px" />
 				<input name="default_page_count" id="id_default_page_count" type="number" value="{(int)$t_dftype->page_count}" maxlength="10" style="width:50px;margin-left:22px" />
+				<input name="default_clist_count" id="id_default_clist_count" type="number" value="{(int)$t_dftype->clist_count}" maxlength="10" style="width:50px;margin-left:22px" />
 			</div>
 		</div>
 	</section>
 
-	<section class="section">
+	<section class="section {$m_copy_target?'collapsed':''}">
 		<h1>{$lang->cmd_list}</h1>
 		<div class="x_control-group {$m_copy_target?'x_info':''}">
 			<label class="x_control-label">{$lang->notice}</label>
@@ -306,7 +318,7 @@
 		</div>
 	</section>
 
-	<section class="section">
+	<section class="section {$m_copy_target?'collapsed':''}">
 		<h1>Function</h1>
 		<div class="x_control-group {$m_copy_target?'x_info':''}">
 			<label class="x_control-label">{$lang->blind}</label>
@@ -412,7 +424,7 @@
 		</div>
 	</section>
 
-	<section class="section">
+	<section class="section {$m_copy_target?'collapsed':''}">
 		<h1>{$lang->cmd_option}</h1>
 		<div class="x_control-group {$m_copy_target?'x_info':''}">
 			<label class="x_control-label">{$lang->status}</label>
@@ -570,7 +582,7 @@
 		</div>
 	</section>
 
-	<section class="section">
+	<section class="section {$m_copy_target?'collapsed':''}">
 		<h1>{$lang->etc}</h1>
 		<div class="x_control-group {$m_copy_target?'x_info':''}">
 			<label class="x_control-label">{$lang->header_text}</label>
@@ -590,7 +602,7 @@
 		</div>
 	</section>
 
-	<section class="section">
+	<section class="section {$m_copy_target?'collapsed':''}">
 		<h1>{$lang->cmd_management}</h1>
 		<div class="x_control-group {$m_copy_target?'x_info':''}">
 			<label class="x_control-label">{$lang->use_robots_meta}</label>
@@ -623,14 +635,15 @@
 			</div>
 		</div>
 	</section>
+</div>
 
-	<div class="x_clearfix btnArea">
-		<span class="x_pull-right">
-			<input cond="$m_allset_targets" class="x_btn x_btn-primary" type="submit" value="All {$lang->cmd_update}" accesskey="s" />
-			<input cond="$m_copy_target" class="x_btn x_btn-primary" type="submit" value="{$lang->module} {$lang->cmd_copy}" accesskey="s" />
-			<input cond="!$m_allset_targets&&!$m_copy_target" class="x_btn x_btn-primary" type="submit" value="{$module_info->module_srl ? $lang->cmd_update : $lang->this_module.' '.$lang->cmd_registration}" accesskey="s" />
-		</span>
-	</div>
+<div class="{$is_poped?'x_modal-footer':'x_clearfix'} btnArea">
+	<span class="x_pull-right">
+		<input cond="$m_allset_targets" class="x_btn x_btn-primary" type="submit" value="All {$lang->cmd_update}" accesskey="s" />
+		<input cond="$m_copy_target" class="x_btn x_btn-primary" type="submit" value="{$lang->module} {$lang->cmd_copy}" accesskey="s" />
+		<input cond="!$m_allset_targets&&!$m_copy_target" class="x_btn x_btn-primary" type="submit" value="{$module_info->module_srl ? $lang->cmd_update : $lang->this_module.' '.$lang->cmd_registration}" accesskey="s" />
+	</span>
+</div>
 </form>
 
 <include target="footer.html" />
