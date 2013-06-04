@@ -1,7 +1,7 @@
 <load target="css/admin.css" />
 <load target="js/admin.js" />
 
-<div cond="$module=='admin'" class="x_page-header">
+<div cond="$module=='admin'" class="{$is_poped?'x_modal-header':'x_page-header'}">
 	<h1>
 		{$lang->this_module}
 		<block cond="!$is_poped&&$module == 'admin'&&$module_info->mid"> -
