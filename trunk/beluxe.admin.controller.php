@@ -276,6 +276,7 @@ class beluxeAdminController extends beluxe
 		$args->module = __XEFM_NAME__;
 		$args->site_srl = (int) $args->site_srl;
 		$args->skin = $args->skin ? $args->skin : 'default';
+		$args->mskin = 'default';
 		$args->use_mobile = (int) $args->mlayout_srl ? 'Y' : 'N';
 
 		$df_option = array();
@@ -482,6 +483,14 @@ class beluxeAdminController extends beluxe
 
 			$ccModule = &getController('module');
 			$out = $ccModule->deleteModule($mod_srl);
+			if(!$out->toBool())
+			{
+				$oDB->rollback();
+				return $out;
+			}
+
+			// TODO 모바일 스킨 설정 db 안지워진다. 고칠때까지 직접 지움
+			$out = $ccModule->deleteModuleMobileSkinVars($mod_srl);
 			if(!$out->toBool())
 			{
 				$oDB->rollback();
