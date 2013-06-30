@@ -108,8 +108,8 @@
 	<div class="x_modal-header">
 		<h1>{$lang->confirm_delete}</h1>
 	</div>
+	<form ruleset="deleteBeluxe" action="./" method="post" id="deleteFo">
 	<div class="x_modal-body">
-		<form ruleset="deleteBeluxe" action="./" method="post" id="deleteFo">
 		<input cond="$module=='admin'" type="hidden" name="module" value="{$module}" />
 		<input type="hidden" name="act" value="procBeluxeAdminDelete" />
 		<input type="hidden" name="page" value="{$page}" />
@@ -135,7 +135,6 @@
 				</tr>
 			</table>
 		</div>
-		</form>
 	</div>
 	<div class="x_modal-footer">
 		<span class="x_pull-left"><strong class="colRed">Warning! </strong> {$lang->msg_delete_this_module}</span>
@@ -144,6 +143,7 @@
 			<button type="button" class="x_btn" data-hide="#manageSelectedModule">{$lang->cmd_close}</button>
 		</span>
 	</div>
+	</form>
 </section>
 
 <include target="footer.html" />
